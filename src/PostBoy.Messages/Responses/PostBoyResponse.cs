@@ -10,7 +10,7 @@ public class PostBoyResponse<T> : PostBoyResponse
 
 public class PostBoyResponse : IResponse
 {
-    public HttpStatusCode Code { get; set; }
-    
     public string Msg { get; set; }
+
+    public HttpStatusCode Code { get; set; }
 }
