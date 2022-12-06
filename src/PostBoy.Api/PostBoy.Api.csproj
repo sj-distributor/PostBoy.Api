@@ -7,13 +7,27 @@
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <NoWarn>1701;1702;1591</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <NoWarn>1701;1702;1591</NoWarn>
+    </PropertyGroup>
+    
     <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.11" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
       <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.4.0" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Controller" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PostBoy.Core\PostBoy.Core.csproj" />
+      <ProjectReference Include="..\PostBoy.Messages\PostBoy.Messages.csproj" />
     </ItemGroup>
 
 </Project>
