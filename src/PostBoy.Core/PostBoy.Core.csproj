@@ -3,7 +3,6 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -17,13 +16,18 @@
     <ItemGroup>
       <PackageReference Include="Autofac" Version="6.5.0" />
       <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+      <PackageReference Include="AutoMapper" Version="12.0.0" />
+      <PackageReference Include="AutoMapper.Contrib.Autofac.DependencyInjection" Version="6.1.0" />
       <PackageReference Include="dbup" Version="5.0.8" />
       <PackageReference Include="dbup-mysql" Version="5.0.10" />
+      <PackageReference Include="EFCore.BulkExtensions" Version="6.5.6" />
       <PackageReference Include="Mediator.Net" Version="4.7.0" />
       <PackageReference Include="Mediator.Net.Autofac" Version="4.7.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.11" />
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+      <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.2" />
       <PackageReference Include="Serilog" Version="2.12.0" />
       <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
       <PackageReference Include="Serilog.Enrichers.CorrelationId" Version="3.0.1" />
@@ -32,6 +36,13 @@
 
     <ItemGroup>
       <Folder Include="Dbup\Scripts_2022" />
+      <Folder Include="Handlers\CommandHandlers" />
+      <Folder Include="Handlers\EventHandlers" />
+      <Folder Include="Handlers\RequestHandlers" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PostBoy.Messages\PostBoy.Messages.csproj" />
     </ItemGroup>
     
 </Project>

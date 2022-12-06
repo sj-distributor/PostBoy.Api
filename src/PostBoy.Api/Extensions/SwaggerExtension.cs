@@ -22,7 +22,6 @@ public static class SwaggerExtension
                       Enter 'Bearer' [space] and then your token in the text input below.
                       \r\n\r\nExample: 'Bearer 12345abcdef'"
             });
-
             c.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
                 {

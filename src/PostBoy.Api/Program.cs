@@ -1,6 +1,6 @@
 using Serilog;
 using Autofac.Extensions.DependencyInjection;
-using PostBoy.Core.DbUp;
+using PostBoy.Core.Dbup;
 using PostBoy.Core.Settings.Logging;
 using PostBoy.Core.Settings.System;
 

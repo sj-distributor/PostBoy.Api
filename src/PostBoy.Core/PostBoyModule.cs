@@ -1,8 +1,13 @@
 using System.Reflection;
 using Autofac;
+using Serilog;
 using Mediator.Net;
 using Mediator.Net.Autofac;
-using Serilog;
+using PostBoy.Core.Ioc;
+using AutoMapper.Contrib.Autofac.DependencyInjection;
+using PostBoy.Core.Middlewares.UnifyResponse;
+using PostBoy.Core.Middlewares.UnitOfWork;
+using PostBoy.Core.Settings;
 using Module = Autofac.Module;
 
 namespace PostBoy.Core;
@@ -28,11 +33,28 @@ public class PostBoyModule : Module
     {
         RegisterLogger(builder);
         RegisterMediator(builder);
+        RegisterSettings(builder);
+        RegisterDependency(builder);
+        RegisterAutoMapper(builder);
     }
     
     private void RegisterLogger(ContainerBuilder builder)
     {
         builder.RegisterInstance(_logger).AsSelf().AsImplementedInterfaces().SingleInstance();
+    }
+    
+    private void RegisterAutoMapper(ContainerBuilder builder)
+    {
+        builder.RegisterAutoMapper(typeof(PostBoyModule).Assembly);
+    }
+    
+    private void RegisterSettings(ContainerBuilder builder)
+    {
+        var settingTypes = typeof(PostBoyModule).Assembly.GetTypes()
+            .Where(t => t.IsClass && typeof(IConfigurationSetting).IsAssignableFrom(t))
+            .ToArray();
+
+        builder.RegisterTypes(settingTypes).AsSelf().SingleInstance();
     }
     
     private void RegisterMediator(ContainerBuilder builder)
@@ -41,7 +63,25 @@ public class PostBoyModule : Module
         mediatorBuilder.RegisterHandlers(_assemblies);
         mediatorBuilder.ConfigureGlobalReceivePipe(c =>
         {
+            c.UseUnitOfWork();
+            c.UseUnifyResponse();
         });
         builder.RegisterMediator(mediatorBuilder);
+    }
+    
+    private void RegisterDependency(ContainerBuilder builder)
+    {
+        foreach (var type in typeof(IDependency).Assembly.GetTypes()
+                     .Where(type => type.IsClass && typeof(IDependency).IsAssignableFrom(type)))
+        {
+            if (typeof(IScopedDependency).IsAssignableFrom(type))
+                builder.RegisterType(type).AsSelf().AsImplementedInterfaces().InstancePerLifetimeScope();
+            else if (typeof(ISingletonDependency).IsAssignableFrom(type))
+                builder.RegisterType(type).AsSelf().AsImplementedInterfaces().SingleInstance();
+            else if (typeof(ITransientDependency).IsAssignableFrom(type))
+                builder.RegisterType(type).AsSelf().AsImplementedInterfaces().InstancePerDependency();
+            else
+                builder.RegisterType(type).AsSelf().AsImplementedInterfaces();
+        }
     }
 }

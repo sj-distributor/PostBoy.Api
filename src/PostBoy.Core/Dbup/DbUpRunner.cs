@@ -1,7 +1,7 @@
 using DbUp;
 using MySql.Data.MySqlClient;
 
-namespace PostBoy.Core.DbUp;
+namespace PostBoy.Core.Dbup;
 
 public class DbUpRunner
 {
