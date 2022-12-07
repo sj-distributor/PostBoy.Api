@@ -1,4 +1,8 @@
-using System.Reflection;
+using Serilog;
+using Autofac;
+using PostBoy.Core;
+using PostBoy.Api.Extensions;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace PostBoy.Api;
 
@@ -13,12 +17,17 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddControllers();
         services.AddMvc();
-        services.AddSwaggerGen(options => {
-            var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename),true);
-        });
+        services.AddControllers().AddNewtonsoftJson();
+        services.AddHttpContextAccessor();
+        services.AddHttpClient();
+        services.AddMemoryCache();
+        services.AddResponseCaching();
+        services.AddHealthChecks();
+        services.AddCustomSwagger();
+        services.AddEndpointsApiExplorer();
+        services.AddCorsPolicy(Configuration);
+        services.AddControllers();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -26,17 +35,27 @@ public class Startup
         if (env.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "PostBoy.Api.xml");
+                c.DocExpansion(DocExpansion.None);
+            });
         }
-        app.UseHttpsRedirection();
-        app.UseStaticFiles();
-        app.UseCookiePolicy();
+        
+        app.UseCors();
         app.UseRouting();
+        app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();        
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
+            endpoints.MapHealthChecks("health");
         });
+    }
+    
+    public void ConfigureContainer(ContainerBuilder builder)
+    {
+        builder.RegisterModule(new PostBoyModule(Log.Logger, typeof(PostBoyModule).Assembly));
     }
 }
