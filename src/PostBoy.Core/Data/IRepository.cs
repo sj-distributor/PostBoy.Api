@@ -5,7 +5,7 @@ namespace PostBoy.Core.Data;
 
 public interface IRepository
 {
-    ValueTask<TEntity?> GetByIdAsync<TEntity>(object id, CancellationToken cancellationToken = default) where TEntity : class, IEntity;
+    ValueTask<TEntity> GetByIdAsync<TEntity>(object id, CancellationToken cancellationToken = default) where TEntity : class, IEntity;
 
     Task<List<TEntity>> GetAllAsync<TEntity>(CancellationToken cancellationToken = default) where TEntity : class, IEntity;
 
@@ -30,10 +30,10 @@ public interface IRepository
     Task<int> CountAsync<TEntity>(Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default) where TEntity : class, IEntity;
 
-    Task<TEntity?> SingleOrDefaultAsync<TEntity>(Expression<Func<TEntity, bool>> predicate,
+    Task<TEntity> SingleOrDefaultAsync<TEntity>(Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default) where TEntity : class, IEntity;
 
-    Task<TEntity?> FirstOrDefaultAsync<TEntity>(Expression<Func<TEntity, bool>> predicate,
+    Task<TEntity> FirstOrDefaultAsync<TEntity>(Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default) where TEntity : class, IEntity;
 
     Task<bool> AnyAsync<TEntity>(Expression<Func<TEntity, bool>> predicate,

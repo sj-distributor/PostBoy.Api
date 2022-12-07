@@ -15,7 +15,7 @@ public class EfRepository : IRepository
         _dbContext = dbContext;
     }
 
-    public ValueTask<TEntity?> GetByIdAsync<TEntity>(object id,
+    public ValueTask<TEntity> GetByIdAsync<TEntity>(object id,
         CancellationToken cancellationToken = default) where TEntity : class, IEntity
     {
         return _dbContext.FindAsync<TEntity>(new object[] { id }, cancellationToken);
@@ -85,13 +85,13 @@ public class EfRepository : IRepository
         return _dbContext.Set<TEntity>().CountAsync(predicate, cancellationToken);
     }
 
-    public Task<TEntity?> SingleOrDefaultAsync<TEntity>(Expression<Func<TEntity, bool>> predicate,
+    public Task<TEntity> SingleOrDefaultAsync<TEntity>(Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default) where TEntity : class, IEntity
     {
         return _dbContext.Set<TEntity>().SingleOrDefaultAsync(predicate, cancellationToken);
     }
 
-    public Task<TEntity?> FirstOrDefaultAsync<TEntity>(Expression<Func<TEntity, bool>> predicate,
+    public Task<TEntity> FirstOrDefaultAsync<TEntity>(Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default) where TEntity : class, IEntity
     {
         return _dbContext.Set<TEntity>().FirstOrDefaultAsync(predicate, cancellationToken);
