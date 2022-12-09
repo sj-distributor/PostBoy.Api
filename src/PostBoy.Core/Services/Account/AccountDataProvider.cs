@@ -38,6 +38,7 @@ public partial class AccountDataProvider : IAccountDataProvider
 
         if (id.HasValue)
             query = query.Where(x => x.Id == id);
+        
         if (!string.IsNullOrEmpty(username))
             query = query.Where(x => x.UserName == username);
         
@@ -71,7 +72,9 @@ public partial class AccountDataProvider : IAccountDataProvider
             new(ClaimTypes.Name, account.UserName),
             new(ClaimTypes.NameIdentifier, account.Id.ToString())
         };
+        
         claims.AddRange(account.Roles.Select(r => new Claim(ClaimTypes.Role, r.Name)));
+        
         return claims;
     }
 }

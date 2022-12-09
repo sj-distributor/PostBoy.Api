@@ -21,6 +21,7 @@
 
     <ItemGroup>
       <Folder Include="Events" />
+      <Folder Include="Requests" />
     </ItemGroup>
     
 </Project>

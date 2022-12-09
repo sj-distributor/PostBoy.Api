@@ -24,6 +24,7 @@ public class TokenProvider : ITokenProvider
     public string Generate(List<Claim> claims)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
+        
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
@@ -32,7 +33,9 @@ public class TokenProvider : ITokenProvider
                     new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                         _jwtSymmetricKey.Value.PadRight(256 / 8, '\0'))), SecurityAlgorithms.HmacSha256Signature)
         };
+        
         var token = tokenHandler.CreateToken(tokenDescriptor);
+        
         return tokenHandler.WriteToken(token);
     }
 }
