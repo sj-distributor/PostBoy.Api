@@ -37,7 +37,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Dbup\Scripts_2022" />
       <Folder Include="Handlers\EventHandlers" />
       <Folder Include="Handlers\RequestHandlers" />
       <Folder Include="Services" />
@@ -45,6 +44,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PostBoy.Messages\PostBoy.Messages.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <EmbeddedResource Include="Dbup\Scripts_2022\Script0001_add_user_account.sql" />
     </ItemGroup>
     
 </Project>

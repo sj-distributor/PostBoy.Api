@@ -5,6 +5,8 @@ using Mediator.Net;
 using Mediator.Net.Autofac;
 using PostBoy.Core.Ioc;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using PostBoy.Core.Data;
 using PostBoy.Core.Middlewares.UnifyResponse;
 using PostBoy.Core.Middlewares.UnitOfWork;
 using PostBoy.Core.Settings;
@@ -34,6 +36,7 @@ public class PostBoyModule : Module
         RegisterLogger(builder);
         RegisterMediator(builder);
         RegisterSettings(builder);
+        RegisterDatabase(builder);
         RegisterDependency(builder);
         RegisterAutoMapper(builder);
     }
@@ -67,6 +70,17 @@ public class PostBoyModule : Module
             c.UseUnifyResponse();
         });
         builder.RegisterMediator(mediatorBuilder);
+    }
+    
+    private void RegisterDatabase(ContainerBuilder builder)
+    {
+        builder.RegisterType<PostBoyDbContext>()
+            .AsSelf()
+            .As<DbContext>()
+            .AsImplementedInterfaces()
+            .InstancePerLifetimeScope();
+    
+        builder.RegisterType<EfRepository>().As<IRepository>().InstancePerLifetimeScope();
     }
     
     private void RegisterDependency(ContainerBuilder builder)
