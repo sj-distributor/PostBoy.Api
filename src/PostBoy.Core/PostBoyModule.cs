@@ -72,6 +72,17 @@ public class PostBoyModule : Module
         builder.RegisterMediator(mediatorBuilder);
     }
     
+    private void RegisterDatabase(ContainerBuilder builder)
+    {
+        builder.RegisterType<PostBoyDbContext>()
+            .AsSelf()
+            .As<DbContext>()
+            .AsImplementedInterfaces()
+            .InstancePerLifetimeScope();
+    
+        builder.RegisterType<EfRepository>().As<IRepository>().InstancePerLifetimeScope();
+    }
+    
     private void RegisterDependency(ContainerBuilder builder)
     {
         foreach (var type in typeof(IDependency).Assembly.GetTypes()

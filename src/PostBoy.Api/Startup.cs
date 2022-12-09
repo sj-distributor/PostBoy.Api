@@ -25,6 +25,7 @@ public class Startup
         services.AddResponseCaching();
         services.AddHealthChecks();
         services.AddCustomSwagger();
+        services.AddCustomAuthentication(Configuration);
         services.AddEndpointsApiExplorer();
         services.AddCorsPolicy(Configuration);
         services.AddControllers();
