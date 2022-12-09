@@ -74,5 +74,5 @@ public class SendWorkWeChatArticleNotificationDto : SendWorkWeChatMediaNotificat
 
 public class SendWorkWeChatMediaNotificationDto
 {
-    public byte[] Media { get; set; }
+    public byte[] MediaContent { get; set; }
 }
