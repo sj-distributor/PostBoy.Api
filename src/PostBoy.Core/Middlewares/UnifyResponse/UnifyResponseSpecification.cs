@@ -41,7 +41,7 @@ public class UnifyResponseSpecification<TContext> : IPipeSpecification<TContext>
         throw ex;
     }
 
-    private void EnrichResponse(TContext context, Exception? ex)
+    private void EnrichResponse(TContext context, Exception ex)
     {
         if (!ShouldExecute(context, default) || context.Result is not PostBoyResponse) return;
 
