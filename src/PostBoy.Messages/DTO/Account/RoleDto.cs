@@ -8,7 +8,5 @@ public class RoleDto
     
     public DateTime ModifiedOn { get; set; }
     
-    public Guid Uuid { get; set; }
-    
     public string Name { get; set; }
 }

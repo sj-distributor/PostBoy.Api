@@ -5,7 +5,7 @@ namespace PostBoy.Core.Services.Identity;
 
 public interface ICurrentUser
 {
-    int Id { get; }
+    Guid Id { get; }
 }
 
 public class CurrentUser : ICurrentUser
@@ -17,7 +17,7 @@ public class CurrentUser : ICurrentUser
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public int Id
+    public Guid Id
     {
         get
         {
@@ -26,12 +26,7 @@ public class CurrentUser : ICurrentUser
 
             var idClaim = _httpContextAccessor.HttpContext.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier);
 
-            return int.Parse(idClaim.Value);
+            return Guid.Parse(idClaim.Value);
         }
     }
-}
-
-public class InternalUser : ICurrentUser
-{
-    public int Id => 1;
 }

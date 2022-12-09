@@ -8,23 +8,19 @@ public class UserAccount : IEntity
 {
     public UserAccount()
     {
-        Uuid = Guid.NewGuid();
-        CreatedOn = DateTime.Now;
-        ModifiedOn = DateTime.Now;
+        CreatedDate = DateTime.Now;
+        ModifiedDate = DateTime.Now;
     }
     
     [Key]
     [Column("id", TypeName = "varchar(36)")]
     public Guid Id { get; set; }
 
-    [Column("created_on")]
-    public DateTime CreatedOn { get; set; }
+    [Column("created_date")]
+    public DateTime CreatedDate { get; set; }
     
-    [Column("modified_on")]
-    public DateTime ModifiedOn { get; set; }
-    
-    [Column("uuid", TypeName = "varchar(36)")]
-    public Guid Uuid { get; set; }
+    [Column("modified_date")]
+    public DateTime ModifiedDate { get; set; }
     
     [Column("username")]
     [StringLength(512)]

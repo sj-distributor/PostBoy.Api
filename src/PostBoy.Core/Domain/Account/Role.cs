@@ -15,10 +15,7 @@ public class Role : IEntity
     
     [Column("modified_on")]
     public DateTime ModifiedOn { get; set; }
-    
-    [Column("uuid", TypeName = "varchar(36)")]
-    public Guid Uuid { get; set; }
-    
+
     [Column("name")]
     [StringLength(512)]
     public string Name { get; set; }

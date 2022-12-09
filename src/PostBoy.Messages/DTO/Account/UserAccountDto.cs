@@ -13,8 +13,6 @@ public class UserAccountDto
     
     public DateTime ModifiedOn { get; set; }
     
-    public Guid Uuid { get; set; }
-    
     public string UserName { get; set; }
     
     public bool IsActive { get; set; }
