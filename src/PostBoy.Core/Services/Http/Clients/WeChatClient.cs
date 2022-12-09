@@ -11,6 +11,12 @@ public interface IWeChatClient : IScopedDependency
     Task<byte[]> GetWorkWeChatMediaAsync(
         string accessToken, string mediaId, CancellationToken cancellationToken);
 
+    Task<CreateWorkWeChatGroupResponseDto> CreateWorkWechatGroupAsync(
+        CreateWorkWeChatGroupDto createWorkWechatGroup, CancellationToken cancellationToken);
+
+    Task<UploadWorkWechatTemporaryFileResponseDto> UploadWorkWechatTemporaryFileAsync(
+        UploadWorkWechatTemporaryFileDto uploadFile, CancellationToken cancellationToken);
+    
     Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatTextMessageAsync(
         WorkWeChatSendTextMessageDto textMessage, CancellationToken cancellationToken);
     
@@ -60,6 +66,16 @@ public class WeChatClient : IWeChatClient
             .GetAsync<byte[]>(mediaUrl, cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task<CreateWorkWeChatGroupResponseDto> CreateWorkWechatGroupAsync(
+        CreateWorkWeChatGroupDto createWorkWechatGroup, CancellationToken cancellationToken)
+    {
+        var sendUrl = $"https://qyapi.weixin.qq.com/cgi-bin/appchat/create?access_token={createWorkWechatGroup.AccessToken}";
+
+        return await _httpClientFactory
+            .PostAsJsonAsync<CreateWorkWeChatGroupResponseDto>(sendUrl, createWorkWechatGroup,
+                cancellationToken).ConfigureAwait(false);
+    }
+    
     public async Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatTextMessageAsync(
         WorkWeChatSendTextMessageDto textMessage, CancellationToken cancellationToken)
     {
@@ -106,32 +122,26 @@ public class WeChatClient : IWeChatClient
                 cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<CreateWorkWechatGroupResponseDto> CreateWorkWechatGroupAsync(CreateWorkWechatGroupDto createWorkWechatGroup, CancellationToken cancellationToken)
-    {
-        var sendUrl = $"https://qyapi.weixin.qq.com/cgi-bin/appchat/create?access_token={createWorkWechatGroup.AccessToken}";
-
-        return await _httpClientFactory
-            .PostAsJsonAsync<CreateWorkWechatGroupResponseDto>(sendUrl, createWorkWechatGroup,
-                cancellationToken).ConfigureAwait(false);
-    }
-
-    public async Task<UploadWorkWechatTemporaryFileResponseDto> UploadWorkWechatTemporaryFileAsync(string accessToken, string fileName, UploadWorkWechatTemporaryFileType type, byte[] bytes, CancellationToken cancellationToken)
+    public async Task<UploadWorkWechatTemporaryFileResponseDto> UploadWorkWechatTemporaryFileAsync(
+        UploadWorkWechatTemporaryFileDto uploadFile, CancellationToken cancellationToken)
     {
         var boundary = DateTime.Now.Ticks.ToString("X");
-        var content = new MultipartFormDataContent(boundary);
-        content.Headers.Remove("Content-Type");
-        content.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=" + boundary);
+        
+        var byteContent = new ByteArrayContent(uploadFile.FileContent);
+        var multipartContent = new MultipartFormDataContent(boundary);
+        
+        multipartContent.Headers.Remove("Content-Type");
+        multipartContent.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=" + boundary);
 
-        HttpContent byteContent = new ByteArrayContent(bytes);
-        content.Add(byteContent);
         byteContent.Headers.Remove("Content-Type");
         byteContent.Headers.Remove("Content-Disposition");
-        
         byteContent.Headers.TryAddWithoutValidation("Content-Type", "application/octet-stream");
-        byteContent.Headers.TryAddWithoutValidation("Content-Disposition", $"form-data; name=\"media\";filename=\"{fileName}\";filelength={bytes.Length}");
+        byteContent.Headers.TryAddWithoutValidation("Content-Disposition", $"form-data; name=\"media\";filename=\"{uploadFile.FileName}\";filelength={uploadFile.FileContent.Length}");
 
-        var sendUrl = $"https://qyapi.weixin.qq.com/cgi-bin/media/upload?access_token={accessToken}&type={type.ToString().ToLower()}";
+        multipartContent.Add(byteContent);
+        
+        var sendUrl = $"https://qyapi.weixin.qq.com/cgi-bin/media/upload?access_token={uploadFile.AccessToken}&type={uploadFile.FileType.ToString().ToLower()}";
 
-        return await _httpClientFactory.PostAsync<UploadWorkWechatTemporaryFileResponseDto>(sendUrl, content, cancellationToken).ConfigureAwait(false);
+        return await _httpClientFactory.PostAsync<UploadWorkWechatTemporaryFileResponseDto>(sendUrl, multipartContent, cancellationToken).ConfigureAwait(false);
     }
 }

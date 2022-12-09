@@ -56,10 +56,10 @@ public class SendWorkWeChatFileNotificationDto : SendWorkWeChatMediaNotification
 
 public class SendWorkWeChatMpNewsNotificationDto
 {
-    public List<SendWorkWeChatMpNewNotificationDto> MpNews { get; set; }
+    public List<SendWorkWeChatArticleNotificationDto> Articles { get; set; }
 }
 
-public class SendWorkWeChatMpNewNotificationDto : SendWorkWeChatMediaNotificationDto
+public class SendWorkWeChatArticleNotificationDto : SendWorkWeChatMediaNotificationDto
 {
     public string Title { get; set; }
     

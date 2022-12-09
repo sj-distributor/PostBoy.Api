@@ -102,7 +102,7 @@ public class PostBoyHttpClientFactory : IPostBoyHttpClientFactory
             return (T)(object) await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
         if (typeof(T) == typeof(byte[]))
             return (T)(object) await response.Content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
-        return await response.Content.ReadAsAsync<T>(cancellationToken).ConfigureAwait(false);
+        return await response.Content.ReadAsAsync<T>(cancellationToken: cancellationToken).ConfigureAwait(false);
     }
     
     private static void LogHttpError(string requestUrl, HttpMethod httpMethod, HttpResponseMessage response)

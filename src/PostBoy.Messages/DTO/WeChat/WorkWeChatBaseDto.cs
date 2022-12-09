@@ -2,6 +2,11 @@ using Newtonsoft.Json;
 
 namespace PostBoy.Messages.DTO.WeChat;
 
+public interface INeedAccessToken
+{
+    public string AccessToken { get; set; }
+}
+
 public class WorkWeChatResponseBaseDto
 {
     [JsonProperty("errcode")]
@@ -11,7 +16,7 @@ public class WorkWeChatResponseBaseDto
     public string ErrorMsg { get; set; }
 }
 
-public class WorkWeChatSendMessageBaseDto
+public class WorkWeChatSendMessageBaseDto : INeedAccessToken
 {
     public string AccessToken { get; set; }
     
