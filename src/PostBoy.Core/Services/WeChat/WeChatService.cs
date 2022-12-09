@@ -1,4 +1,3 @@
-using AutoMapper;
 using PostBoy.Core.Ioc;
 using PostBoy.Core.Extensions;
 using PostBoy.Messages.DTO.Messages;
@@ -15,12 +14,10 @@ public interface IWeChatService : IScopedDependency
 
 public class WeChatService : IWeChatService
 {
-    private readonly IMapper _mapper;
     private readonly IWeChatUtilService _weChatUtilService;
 
-    public WeChatService(IMapper mapper, IWeChatUtilService weChatUtilService)
+    public WeChatService(IWeChatUtilService weChatUtilService)
     {
-        _mapper = mapper;
         _weChatUtilService = weChatUtilService;
     }
 
@@ -28,6 +25,8 @@ public class WeChatService : IWeChatService
         SendWorkWeChatAppNotificationDto notificationData, CancellationToken cancellationToken)
     {
         var message = await GenerateWorkWeChatSendMessageAsync(notificationData, cancellationToken).ConfigureAwait(false);
+
+        await _weChatUtilService.SendWorkWeChatMessageAsync(message, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<WorkWeChatSendMessageDto> GenerateWorkWeChatSendMessageAsync(

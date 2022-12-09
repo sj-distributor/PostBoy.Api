@@ -38,8 +38,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Dbup\Scripts_2022" />
-      <Folder Include="Handlers\EventHandlers" />
       <Folder Include="Handlers\RequestHandlers" />
     </ItemGroup>
 
