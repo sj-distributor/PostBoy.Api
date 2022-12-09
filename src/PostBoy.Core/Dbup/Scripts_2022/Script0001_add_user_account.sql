@@ -14,8 +14,8 @@ create table if not exists role_user
     id varchar(36) not null primary key,
     created_date datetime(3) not null,
     modified_date datetime(3) not null,
-    role_id int not null,
-    user_id int not null,
+    role_id varchar(36) not null,
+    user_id varchar(36) not null,
     constraint idx_user_id_role_id
     unique (user_id, role_id)
     )

@@ -10,11 +10,11 @@ public class RoleUser : IEntity
     [Column("id", TypeName = "varchar(36)")]
     public Guid Id { get; set; }
     
-    [Column("created_on")]
-    public DateTime CreatedOn { get; set; }
+    [Column("created_date")]
+    public DateTime CreatedDate { get; set; }
     
-    [Column("modified_on")]
-    public DateTime ModifiedOn { get; set; }
+    [Column("modified_date")]
+    public DateTime ModifiedDate { get; set; }
 
     [Column("role_id", TypeName = "varchar(36)")]
     public Guid RoleId { get; set; }
