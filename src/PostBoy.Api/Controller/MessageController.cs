@@ -5,7 +5,6 @@ using PostBoy.Messages.Commands.Messages;
 
 namespace PostBoy.Api.Controller;
 
-[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class MessageController : ControllerBase

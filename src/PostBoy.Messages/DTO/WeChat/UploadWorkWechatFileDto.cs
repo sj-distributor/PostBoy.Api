@@ -1,8 +1,9 @@
 using Newtonsoft.Json;
+using PostBoy.Messages.Enums.WeChat;
 
 namespace PostBoy.Messages.DTO.WeChat;
 
-public class UploadWorkWechatTemporaryFileDto : INeedAccessToken
+public class UploadWorkWechatFileDto : INeedAccessToken
 {
     public string AccessToken { get; set; }
     
@@ -10,10 +11,10 @@ public class UploadWorkWechatTemporaryFileDto : INeedAccessToken
     
     public byte[] FileContent { get; set; }
     
-    public UploadWorkWechatTemporaryFileType FileType { get; set; }
+    public WorkWeChatFileType FileType { get; set; }
 }
 
-public class UploadWorkWechatTemporaryFileResponseDto : WorkWeChatResponseBaseDto
+public class UploadWorkWechatFileResponseDto : WorkWeChatResponseBaseDto
 {
     [JsonProperty("type")]
     public string Type { get; set; }
@@ -23,12 +24,4 @@ public class UploadWorkWechatTemporaryFileResponseDto : WorkWeChatResponseBaseDt
     
     [JsonProperty("created_at")]
     public string CreateAt { get; set; }
-}
-
-public enum UploadWorkWechatTemporaryFileType
-{
-    Image,
-    Voice,
-    Video,
-    File
 }
