@@ -9,9 +9,9 @@ public class UserAccountDto
     
     public Guid Id { get; set; }
     
-    public DateTime CreatedOn { get; set; }
+    public DateTime CreatedDate { get; set; }
     
-    public DateTime ModifiedOn { get; set; }
+    public DateTime ModifiedDate { get; set; }
     
     public string UserName { get; set; }
     

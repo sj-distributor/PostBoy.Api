@@ -4,9 +4,9 @@ public class RoleDto
 {
     public Guid Id { get; set; }
     
-    public DateTime CreatedOn { get; set; }
+    public DateTime CreatedDate { get; set; }
     
-    public DateTime ModifiedOn { get; set; }
+    public DateTime ModifiedDate { get; set; }
     
     public string Name { get; set; }
 }
