@@ -11,6 +11,8 @@ public class SendWorkWeChatAppNotificationDto
         ToParties = new List<string>();
     }
     
+    public string AppId { get; set; }
+    
     public string ChatId { get; set; }
 
     public List<string> ToTags { get; set; }

@@ -7,6 +7,7 @@ using PostBoy.Core.Ioc;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using PostBoy.Core.Data;
+using PostBoy.Core.Middlewares.FluentMessageValidator;
 using PostBoy.Core.Middlewares.UnifyResponse;
 using PostBoy.Core.Middlewares.UnitOfWork;
 using PostBoy.Core.Settings;
@@ -39,6 +40,7 @@ public class PostBoyModule : Module
         RegisterDatabase(builder);
         RegisterDependency(builder);
         RegisterAutoMapper(builder);
+        RegisterValidators(builder);
     }
     
     private void RegisterLogger(ContainerBuilder builder)
@@ -66,6 +68,7 @@ public class PostBoyModule : Module
         mediatorBuilder.RegisterHandlers(_assemblies);
         mediatorBuilder.ConfigureGlobalReceivePipe(c =>
         {
+            c.UseMessageValidator();
             c.UseUnitOfWork();
             c.UseUnifyResponse();
         });
@@ -97,5 +100,11 @@ public class PostBoyModule : Module
             else
                 builder.RegisterType(type).AsSelf().AsImplementedInterfaces();
         }
+    }
+    
+    private void RegisterValidators(ContainerBuilder builder)
+    {
+        builder.RegisterTypes(typeof(PostBoyModule).Assembly.GetTypes()
+            .Where(x => x.IsClass && typeof(IFluentMessageValidator).IsAssignableFrom(x)).ToArray()).AsSelf().AsImplementedInterfaces();
     }
 }
