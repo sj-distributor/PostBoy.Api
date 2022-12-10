@@ -4,6 +4,7 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using PostBoy.Core.Data;
 using PostBoy.Core.Domain.Account;
+using PostBoy.Core.Extensions;
 using PostBoy.Core.Ioc;
 using PostBoy.Messages.DTO.Account;
 
@@ -18,6 +19,8 @@ public interface IAccountDataProvider : IScopedDependency
         CancellationToken cancellationToken = default);
 
     List<Claim> GenerateClaimsFromUserAccount(UserAccountDto account);
+    
+    Task<UserAccount> CreateUserAccount(string userName, string password, CancellationToken cancellationToken);
 }
 
 public partial class AccountDataProvider : IAccountDataProvider
@@ -76,5 +79,21 @@ public partial class AccountDataProvider : IAccountDataProvider
         claims.AddRange(account.Roles.Select(r => new Claim(ClaimTypes.Role, r.Name)));
         
         return claims;
+    }
+    
+    public async Task<UserAccount> CreateUserAccount(string requestUserName, string requestPassword, CancellationToken cancellationToken)
+    {
+        var userAccount = new UserAccount
+        {
+            CreatedDate = DateTime.Now,
+            ModifiedDate = DateTime.Now,
+            UserName = requestUserName,
+            Password = requestPassword.ToSha256(),
+            IsActive = true
+        };
+
+        await _repository.InsertAsync(userAccount, cancellationToken).ConfigureAwait(false);
+
+        return userAccount;
     }
 }

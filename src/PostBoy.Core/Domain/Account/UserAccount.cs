@@ -8,6 +8,7 @@ public class UserAccount : IEntity
 {
     public UserAccount()
     {
+        Id = Guid.NewGuid();
         CreatedDate = DateTime.Now;
         ModifiedDate = DateTime.Now;
     }
