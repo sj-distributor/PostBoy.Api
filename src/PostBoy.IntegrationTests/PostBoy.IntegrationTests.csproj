@@ -23,8 +23,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\src\PostBoy.Core\PostBoy.Core.csproj" />
-      <ProjectReference Include="..\src\PostBoy.Messages\PostBoy.Messages.csproj" />
+      <ProjectReference Include="..\PostBoy.Core\PostBoy.Core.csproj" />
+      <ProjectReference Include="..\PostBoy.Messages\PostBoy.Messages.csproj" />
     </ItemGroup>
 
     <ItemGroup>
