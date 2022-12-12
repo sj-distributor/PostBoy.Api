@@ -85,8 +85,6 @@ public partial class AccountDataProvider : IAccountDataProvider
     {
         var userAccount = new UserAccount
         {
-            CreatedDate = DateTime.Now,
-            ModifiedDate = DateTime.Now,
             UserName = requestUserName,
             Password = requestPassword.ToSha256(),
             IsActive = true

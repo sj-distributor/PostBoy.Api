@@ -16,7 +16,7 @@ public class RegisterRequestHandler : ICommandHandler<RegisterCommand, RegisterR
 
     public async Task<RegisterResponse> Handle(IReceiveContext<RegisterCommand> context, CancellationToken cancellationToken)
     {
-        var userAccountRegisteredEvent = await _accountService.RegisterAsync(context.Message, cancellationToken);
+        var userAccountRegisteredEvent = await _accountService.RegisterAsync(context.Message, cancellationToken).ConfigureAwait(false);
         
         await context.PublishAsync(userAccountRegisteredEvent, cancellationToken).ConfigureAwait(false);
 

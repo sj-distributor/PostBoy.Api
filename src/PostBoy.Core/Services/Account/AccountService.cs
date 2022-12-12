@@ -40,7 +40,7 @@ public class AccountService : IAccountService
     
     public async Task<UserAccountRegisteredEvent> RegisterAsync(RegisterCommand command, CancellationToken cancellationToken)
     {
-        await _accountDataProvider.CreateUserAccount(command.UserName, command.Password, cancellationToken);
+        await _accountDataProvider.CreateUserAccount(command.UserName, command.Password, cancellationToken).ConfigureAwait(false);
 
         return new UserAccountRegisteredEvent();
     }
