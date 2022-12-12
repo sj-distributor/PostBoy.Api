@@ -49,7 +49,7 @@ public partial class TestBase
         dynamic jsonObj = JsonConvert.DeserializeObject(File.ReadAllText(targetJson));
         jsonObj["ConnectionStrings"]["PostBoyConnectionString"] =
             jsonObj["ConnectionStrings"]["PostBoyConnectionString"].ToString()
-                .Replace("Database=PostBoy", $"Database={_databaseName}");
+                .Replace("Database=postboy", $"Database={_databaseName}");
         File.WriteAllText(targetJson, JsonConvert.SerializeObject(jsonObj));
         var configuration = new ConfigurationBuilder().AddJsonFile(targetJson).Build();
         containerBuilder.RegisterInstance(configuration).AsImplementedInterfaces();
