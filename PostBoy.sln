@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostBoy.Messages", "src\Pos
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{240B973C-8B55-4ED6-9C5B-6F80635F3058}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostBoy.IntegrationTests", "PostBoy.IntegrationTests\PostBoy.IntegrationTests.csproj", "{8CDC3FAF-A397-4816-9FBE-7EB261F83129}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostBoy.IntegrationTests", "src\PostBoy.IntegrationTests\PostBoy.IntegrationTests.csproj", "{8CDC3FAF-A397-4816-9FBE-7EB261F83129}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
