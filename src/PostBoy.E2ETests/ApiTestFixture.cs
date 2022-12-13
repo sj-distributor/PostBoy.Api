@@ -2,14 +2,14 @@
 using Autofac;
 using Mediator.Net;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
-using MySql.Data.MySqlClient;
 using NSubstitute;
 using PostBoy.Core.Services.Identity;
-using PostBoy.Core.Settings.System;
 using PostBoy.Api;
+using PostBoy.Core.Data;
 using PostBoy.Core.Services.Jobs;
+using PostBoy.E2ETests.Mocks;
 
 namespace PostBoy.E2ETests;
 
@@ -24,6 +24,7 @@ public class ApiTestFixture : WebApplicationFactory<Startup>
     {
         builder.ConfigureContainer<ContainerBuilder>(b =>
         {
+            RegisterDatabase(b);
             RegisterCurrentUser(b);
             RegisterBackgroundJobClient(b);
         });
@@ -39,52 +40,22 @@ public class ApiTestFixture : WebApplicationFactory<Startup>
     
     private void ClearDatabaseRecord()
     {
-        var conn = Services.GetRequiredService<PostBoyConnectionString>();
-        
-        try
-        {
-            var connection = new MySqlConnection(conn.Value);
-
-            var deleteStatements = new List<string>();
-
-            connection.Open();
-
-            using var reader = new MySqlCommand(
-                    $"SELECT table_name FROM INFORMATION_SCHEMA.tables WHERE table_schema = 'postboy';",
-                    connection)
-                .ExecuteReader();
-
-            deleteStatements.Add($"SET SQL_SAFE_UPDATES = 0");
-            
-            while (reader.Read())
-            {
-                var table = reader.GetString(0);
-
-                if (!_tableRecordsDeletionExcludeList.Contains(table))
-                {
-                    deleteStatements.Add($"DELETE FROM `{table}`");
-                }
-            }
-
-            deleteStatements.Add($"SET SQL_SAFE_UPDATES = 1");
-
-            reader.Close();
-
-            var strDeleteStatements = string.Join(";", deleteStatements) + ";";
-
-            new MySqlCommand(strDeleteStatements, connection).ExecuteNonQuery();
-
-            connection.Close();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error cleaning up data, {ex}");
-        }
     }
 
     private void RegisterCurrentUser(ContainerBuilder containerBuilder)
     {
-        containerBuilder.RegisterInstance(new TestCurrentUser()).As<ICurrentUser>();
+        containerBuilder.RegisterInstance(new MockCurrentUser()).As<ICurrentUser>();
+    }
+
+    private void RegisterDatabase(ContainerBuilder containerBuilder)
+    {
+        containerBuilder.RegisterType<InMemoryDbContext>()
+            .AsSelf()
+            .As<DbContext>()
+            .AsImplementedInterfaces()
+            .InstancePerLifetimeScope();
+    
+        containerBuilder.RegisterType<InMemoryRepository>().As<IRepository>().InstancePerLifetimeScope();
     }
     
     private void RegisterBackgroundJobClient(ContainerBuilder containerBuilder)
@@ -110,9 +81,4 @@ public class ApiTestFixture : WebApplicationFactory<Startup>
             return backgroundJobClient;
         }).AsSelf().AsImplementedInterfaces();
     }
-}
-
-internal class TestCurrentUser : ICurrentUser
-{
-    public Guid Id => Guid.Empty;
 }
