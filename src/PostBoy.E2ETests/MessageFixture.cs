@@ -23,9 +23,9 @@ public class MessageFixture : IClassFixture<ApiTestFixture>
     [Fact]
     public async Task ShouldSendWorkWeChatTextNotification()
     {
-        await CreateWorkWeChatCorpAndApplication();
-
         var client = _factory.CreateClient();
+
+        await CreateWorkWeChatCorpAndApplication();
 
         await client.PostAsJsonAsync("api/message/send", new SendMessageCommand
         {
