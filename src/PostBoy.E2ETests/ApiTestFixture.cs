@@ -32,7 +32,7 @@ public class ApiTestFixture : WebApplicationFactory<Startup>
     
     public override ValueTask DisposeAsync()
     {
-        //ClearDatabaseRecord();
+        ClearDatabaseRecord();
         
         return base.DisposeAsync();
     }
