@@ -57,9 +57,4 @@ public class Startup
             endpoints.MapHealthChecks("health");
         });
     }
-    
-    public void ConfigureContainer(ContainerBuilder builder)
-    {
-        builder.RegisterModule(new PostBoyModule(Log.Logger, typeof(PostBoyModule).Assembly));
-    }
 }
