@@ -5,6 +5,7 @@ using Mediator.Net;
 using Mediator.Net.Autofac;
 using PostBoy.Core.Ioc;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
+using Mediator.Net.Middlewares.Serilog;
 using Microsoft.EntityFrameworkCore;
 using PostBoy.Core.Data;
 using PostBoy.Core.Middlewares.FluentMessageValidator;
@@ -71,6 +72,7 @@ public class PostBoyModule : Module
             c.UseMessageValidator();
             c.UseUnitOfWork();
             c.UseUnifyResponse();
+            c.UseSerilog(logger: _logger);
         });
         builder.RegisterMediator(mediatorBuilder);
     }

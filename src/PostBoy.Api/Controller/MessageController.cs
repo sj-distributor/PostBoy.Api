@@ -1,6 +1,5 @@
 using Mediator.Net;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using PostBoy.Messages.Commands.Messages;
 
 namespace PostBoy.Api.Controller;

@@ -1,44 +1,59 @@
-using PostBoy.Core.Ioc;
+using PostBoy.Core.Domain.WeChat;
 using PostBoy.Core.Extensions;
+using PostBoy.Core.Services.WeChat.Exceptions;
+using PostBoy.Messages.Commands.Messages;
 using PostBoy.Messages.DTO.Messages;
 using PostBoy.Messages.DTO.WeChat;
 using PostBoy.Messages.Enums.WeChat;
+using PostBoy.Messages.Events.Messages;
+using Serilog;
 
-namespace PostBoy.Core.Services.WeChat;
+namespace PostBoy.Core.Services.Messages;
 
-public interface IWeChatService : IScopedDependency
+public partial class MessageService
 {
-    Task SendWorkWeChatAppNotificationAsync(
-        SendWorkWeChatAppNotificationDto notificationData, CancellationToken cancellationToken);
-}
-
-public class WeChatService : IWeChatService
-{
-    private readonly IWeChatUtilService _weChatUtilService;
-
-    public WeChatService(IWeChatUtilService weChatUtilService)
+    public async Task<WorkWeChatAppNotificationSentEvent> SendMessageAsync(SendWorkWeChatAppNotificationCommand command, CancellationToken cancellationToken)
     {
-        _weChatUtilService = weChatUtilService;
-    }
+        var sentMessage = await SendWorkWeChatAppNotificationAsync(command.WorkWeChatAppNotification, cancellationToken).ConfigureAwait(false);
 
-    public async Task SendWorkWeChatAppNotificationAsync(
+        return new WorkWeChatAppNotificationSentEvent
+        {
+            SentMessage = sentMessage
+        };
+    }
+    
+    private async Task<WorkWeChatSendMessageDto> SendWorkWeChatAppNotificationAsync(
         SendWorkWeChatAppNotificationDto notificationData, CancellationToken cancellationToken)
     {
-        var message = await GenerateWorkWeChatSendMessageAsync(notificationData, cancellationToken).ConfigureAwait(false);
+        if (notificationData == null)
+            return null;
+        
+        var (corp, app) = await _weChatDataProvider
+            .GetWorkWeChatCorpAndApplicationByAppIdAsync(notificationData.AppId, cancellationToken).ConfigureAwait(false);
 
-        await _weChatUtilService.SendWorkWeChatMessageAsync(message, cancellationToken).ConfigureAwait(false);
+        if (corp == null || app == null)
+            throw new WorkWeChatAppNotificationCorpMissingException(notificationData.AppId);
+        
+        var message = await GenerateWorkWeChatSendMessageAsync(notificationData, corp, app, cancellationToken).ConfigureAwait(false);
+
+        var response = await _weChatUtilService.SendWorkWeChatMessageAsync(message, cancellationToken).ConfigureAwait(false);
+        
+        Log.Information("Send work wechat message: {@Message}, response: {@Response}", message, response);
+
+        return message;
     }
 
     private async Task<WorkWeChatSendMessageDto> GenerateWorkWeChatSendMessageAsync(
-        SendWorkWeChatAppNotificationDto notificationData, CancellationToken cancellationToken)
+        SendWorkWeChatAppNotificationDto notificationData, WorkWeChatCorp corp, WorkWeChatCorpApplication app, CancellationToken cancellationToken)
     {
         var sendMessage = new WorkWeChatSendMessageDto
         {
+            AgentId = app.AgentId,
             ChatId = notificationData.ChatId,
-            AgentId = 1,
             ToTag = GenerateMultiIds(notificationData.ToTags),
             ToUser = GenerateMultiIds(notificationData.ToUsers),
-            ToParty = GenerateMultiIds(notificationData.ToParties)
+            ToParty = GenerateMultiIds(notificationData.ToParties),
+            AccessToken = await _weChatUtilService.GetWorkWeChatAccessTokenAsync(corp.CorpId, app.Secret, cancellationToken).ConfigureAwait(false)
         };
 
         if (notificationData.Text != null)

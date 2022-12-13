@@ -7,22 +7,17 @@ namespace PostBoy.Core.Services.Messages;
 
 public interface IMessageService : IScopedDependency
 {
-    Task<MessageSentEvent> SendMessageAsync(SendMessageCommand command, CancellationToken cancellationToken);
+    Task<WorkWeChatAppNotificationSentEvent> SendMessageAsync(SendWorkWeChatAppNotificationCommand command, CancellationToken cancellationToken);
 }
 
-public class MessageService : IMessageService
+public partial class MessageService : IMessageService
 {
-    private readonly IWeChatService _weChatService;
-
-    public MessageService(IWeChatService weChatService)
+    private readonly IWeChatUtilService _weChatUtilService;
+    private readonly IWeChatDataProvider _weChatDataProvider;
+    
+    public MessageService(IWeChatUtilService weChatUtilService, IWeChatDataProvider weChatDataProvider)
     {
-        _weChatService = weChatService;
-    }
-
-    public async Task<MessageSentEvent> SendMessageAsync(SendMessageCommand command, CancellationToken cancellationToken)
-    {
-        await _weChatService.SendWorkWeChatAppNotificationAsync(command.WorkWeChatAppNotification, cancellationToken).ConfigureAwait(false);
-
-        return new MessageSentEvent();
+        _weChatUtilService = weChatUtilService;
+        _weChatDataProvider = weChatDataProvider;
     }
 }
