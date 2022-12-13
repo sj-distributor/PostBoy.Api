@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using PostBoy.Core.Data;
-using PostBoy.Core.Domain.Account;
 using PostBoy.Core.Domain.WeChat;
 using PostBoy.Messages.Commands.Messages;
 using PostBoy.Messages.DTO.Messages;
