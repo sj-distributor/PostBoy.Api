@@ -29,6 +29,7 @@ public class Startup
         services.AddEndpointsApiExplorer();
         services.AddCorsPolicy(Configuration);
         services.AddControllers();
+        services.AddHangfireInternal(Configuration);
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -47,16 +48,13 @@ public class Startup
         app.UseRouting();
         app.UseHttpsRedirection();
         app.UseAuthentication();
-        app.UseAuthorization();        
+        app.UseAuthorization();
+        app.UseHangfireInternal(Configuration);
+        app.ScanHangfireRecurringJobs(Configuration);
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
             endpoints.MapHealthChecks("health");
         });
-    }
-    
-    public void ConfigureContainer(ContainerBuilder builder)
-    {
-        builder.RegisterModule(new PostBoyModule(Log.Logger, typeof(PostBoyModule).Assembly));
     }
 }

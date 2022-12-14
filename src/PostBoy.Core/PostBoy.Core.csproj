@@ -21,8 +21,12 @@
       <PackageReference Include="dbup" Version="5.0.8" />
       <PackageReference Include="dbup-mysql" Version="5.0.10" />
       <PackageReference Include="EFCore.BulkExtensions" Version="6.5.6" />
+      <PackageReference Include="FluentValidation" Version="11.4.0" />
+      <PackageReference Include="Hangfire" Version="1.7.32" />
+      <PackageReference Include="Hangfire.Pro.Redis" Version="2.8.19" />
       <PackageReference Include="Mediator.Net" Version="4.7.0" />
       <PackageReference Include="Mediator.Net.Autofac" Version="4.7.0" />
+      <PackageReference Include="Mediator.Net.Middlewares.Serilog" Version="4.7.0" />
       <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.11" />
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
@@ -38,10 +42,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Dbup\Scripts_2022" />
-      <Folder Include="Handlers\EventHandlers" />
       <Folder Include="Handlers\RequestHandlers" />
-      <Folder Include="Services" />
+      <Folder Include="Jobs\RecurringJobs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -50,6 +52,8 @@
     
     <ItemGroup>
         <EmbeddedResource Include="Dbup\Scripts_2022\Script0001_add_user_account.sql" />
+        <None Remove="Dbup\Scripts_2022\Script0002_add_wechat_related_tables.sql" />
+        <EmbeddedResource Include="Dbup\Scripts_2022\Script0002_add_wechat_related_tables.sql" />
     </ItemGroup>
     
 </Project>

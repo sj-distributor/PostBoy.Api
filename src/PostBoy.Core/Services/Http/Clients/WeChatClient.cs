@@ -14,27 +14,11 @@ public interface IWeChatClient : IScopedDependency
     Task<CreateWorkWeChatGroupResponseDto> CreateWorkWechatGroupAsync(
         CreateWorkWeChatGroupDto createWorkWechatGroup, CancellationToken cancellationToken);
 
-    Task<UploadWorkWechatTemporaryFileResponseDto> UploadWorkWechatTemporaryFileAsync(
-        UploadWorkWechatTemporaryFileDto uploadFile, CancellationToken cancellationToken);
-    
-    Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatTextMessageAsync(
-        WorkWeChatSendTextMessageDto textMessage, CancellationToken cancellationToken);
-    
-    Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatImageMessageAsync(
-        WorkWeChatSendImageMessageDto imageMessage, CancellationToken cancellationToken);
-    
-    Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatVoiceMessageAsync(
-        WorkWeChatSendVoiceMessageDto voiceMessage, CancellationToken cancellationToken);
-    
-    Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatVideoMessageAsync(
-        WorkWeChatSendVideoMessageDto videoMessage, CancellationToken cancellationToken);
-    
-    Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatFileMessageAsync(
-        WorkWeChatSendFileMessageDto fileMessage, CancellationToken cancellationToken);
-    
-    Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatMpNewsMessageAsync(
-        WorkWeChatSendMpNewsMessageDto mpNewsMessage, CancellationToken cancellationToken);
-    
+    Task<UploadWorkWechatFileResponseDto> UploadWorkWechatFileAsync(
+        UploadWorkWechatFileDto uploadFile, CancellationToken cancellationToken);
+
+    Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatMessageAsync(
+        WorkWeChatSendMessageDto message, CancellationToken cancellationToken);
 }
 
 public class WeChatClient : IWeChatClient
@@ -76,44 +60,8 @@ public class WeChatClient : IWeChatClient
                 cancellationToken).ConfigureAwait(false);
     }
     
-    public async Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatTextMessageAsync(
-        WorkWeChatSendTextMessageDto textMessage, CancellationToken cancellationToken)
-    {
-        return await SendWorkWeChatMessageAsync(textMessage, cancellationToken).ConfigureAwait(false);
-    }
-
-    public async Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatImageMessageAsync(
-        WorkWeChatSendImageMessageDto imageMessage, CancellationToken cancellationToken)
-    {
-        return await SendWorkWeChatMessageAsync(imageMessage, cancellationToken).ConfigureAwait(false);
-    }
-
-    public async Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatVoiceMessageAsync(
-        WorkWeChatSendVoiceMessageDto voiceMessage, CancellationToken cancellationToken)
-    {
-        return await SendWorkWeChatMessageAsync(voiceMessage, cancellationToken).ConfigureAwait(false);
-    }
-
-    public async Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatVideoMessageAsync(
-        WorkWeChatSendVideoMessageDto videoMessage, CancellationToken cancellationToken)
-    {
-        return await SendWorkWeChatMessageAsync(videoMessage, cancellationToken).ConfigureAwait(false);
-    }
-
-    public async Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatFileMessageAsync(
-        WorkWeChatSendFileMessageDto fileMessage, CancellationToken cancellationToken)
-    {
-        return await SendWorkWeChatMessageAsync(fileMessage, cancellationToken).ConfigureAwait(false);
-    }
-
-    public async Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatMpNewsMessageAsync(
-        WorkWeChatSendMpNewsMessageDto mpNewsMessage, CancellationToken cancellationToken)
-    {
-        return await SendWorkWeChatMessageAsync(mpNewsMessage, cancellationToken).ConfigureAwait(false);
-    }
-
-    private async Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatMessageAsync(
-        WorkWeChatSendMessageBaseDto message, CancellationToken cancellationToken)
+    public async Task<WorkWeChatSendMessageResponseDto> SendWorkWeChatMessageAsync(
+        WorkWeChatSendMessageDto message, CancellationToken cancellationToken)
     {
         var sendUrl = $"https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={message.AccessToken}";
 
@@ -122,8 +70,8 @@ public class WeChatClient : IWeChatClient
                 cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<UploadWorkWechatTemporaryFileResponseDto> UploadWorkWechatTemporaryFileAsync(
-        UploadWorkWechatTemporaryFileDto uploadFile, CancellationToken cancellationToken)
+    public async Task<UploadWorkWechatFileResponseDto> UploadWorkWechatFileAsync(
+        UploadWorkWechatFileDto uploadFile, CancellationToken cancellationToken)
     {
         var boundary = DateTime.Now.Ticks.ToString("X");
         
@@ -142,6 +90,6 @@ public class WeChatClient : IWeChatClient
         
         var sendUrl = $"https://qyapi.weixin.qq.com/cgi-bin/media/upload?access_token={uploadFile.AccessToken}&type={uploadFile.FileType.ToString().ToLower()}";
 
-        return await _httpClientFactory.PostAsync<UploadWorkWechatTemporaryFileResponseDto>(sendUrl, multipartContent, cancellationToken).ConfigureAwait(false);
+        return await _httpClientFactory.PostAsync<UploadWorkWechatFileResponseDto>(sendUrl, multipartContent, cancellationToken).ConfigureAwait(false);
     }
 }

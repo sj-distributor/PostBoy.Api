@@ -1,5 +1,7 @@
+using Autofac;
 using Serilog;
 using Autofac.Extensions.DependencyInjection;
+using PostBoy.Core;
 using PostBoy.Core.Dbup;
 using PostBoy.Core.Settings.Logging;
 using PostBoy.Core.Settings.System;
@@ -35,7 +37,7 @@ public class Program
 
             new DbUpRunner(new PostBoyConnectionString(configuration).Value).Run();
 
-            var webHost = CreateWebHostBuilder(args).Build();
+            var webHost = CreateHostBuilder(args).Build();
 
             Log.Information("Starting api host ({ApplicationContext})...", application);
 
@@ -51,9 +53,13 @@ public class Program
         }
     }
 
-    private static IHostBuilder CreateWebHostBuilder(string[] args) =>
+    private static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
             .ConfigureLogging(l => l.AddSerilog(Log.Logger))
             .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+            .ConfigureContainer<ContainerBuilder>(builder =>
+            {
+                builder.RegisterModule(new PostBoyModule(Log.Logger, typeof(PostBoyModule).Assembly));
+            })
             .ConfigureWebHostDefaults(builder => { builder.UseStartup<Startup>(); });
 }

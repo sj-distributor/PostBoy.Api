@@ -16,29 +16,6 @@ public class WorkWeChatResponseBaseDto
     public string ErrorMsg { get; set; }
 }
 
-public class WorkWeChatSendMessageBaseDto : INeedAccessToken
-{
-    public string AccessToken { get; set; }
-    
-    [JsonProperty("agentid")]
-    public long AgentId { get; set; }
-    
-    [JsonProperty("touser")]
-    public string ToUser { get; set; }
-    
-    [JsonProperty("toparty")]
-    public string ToParty { get; set; }
-    
-    [JsonProperty("totag")]
-    public string ToTag { get; set; }
-
-    [JsonProperty("msgtype")]
-    protected string MsgType { get; set; }
-    
-    [JsonProperty("safe")]
-    public int Safe { get; set; }
-}
-
 public class WorkWeChatSendMessageResponseDto : WorkWeChatResponseBaseDto
 {
     [JsonProperty("invalidtag")]
