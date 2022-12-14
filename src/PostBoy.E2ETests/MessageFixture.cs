@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PostBoy.Core.Data;
 using PostBoy.Core.Domain.WeChat;
+using PostBoy.E2ETests.Mocks;
 using PostBoy.Messages.Commands.Messages;
 using PostBoy.Messages.DTO.Messages;
 using PostBoy.Messages.Enums.WeChat;
@@ -8,8 +9,9 @@ using PostBoy.Messages.Enums.WeChat;
 namespace PostBoy.E2ETests;
 
 [Collection("Sequential")]
-public class MessageFixture : IClassFixture<ApiTestFixture>
+public class MessageFixture : IClassFixture<ApiTestFixture>, IDisposable
 {
+    private readonly HttpClient _client;
     private readonly ApiTestFixture _factory;
 
     private const string AppId = "PostBoy_AppId";
@@ -18,16 +20,15 @@ public class MessageFixture : IClassFixture<ApiTestFixture>
     public MessageFixture(ApiTestFixture factory)
     {
         _factory = factory;
+        _client = _factory.CreateClient();
     }
 
     [Fact]
     public async Task ShouldSendWorkWeChatTextNotification()
     {
-        var client = _factory.CreateClient();
-
         await CreateWorkWeChatCorpAndApplication();
 
-        await client.PostAsJsonAsync("api/message/send", new SendMessageCommand
+        await _client.PostAsJsonAsync("api/message/send", new SendMessageCommand
         {
             WorkWeChatAppNotification = new SendWorkWeChatAppNotificationDto
             {
@@ -44,11 +45,9 @@ public class MessageFixture : IClassFixture<ApiTestFixture>
     [Fact]
     public async Task ShouldSendWorkWeChatImageNotification()
     {
-        var client = _factory.CreateClient();
-
         await CreateWorkWeChatCorpAndApplication();
 
-        await client.PostAsJsonAsync("api/message/send", new SendMessageCommand
+        await _client.PostAsJsonAsync("api/message/send", new SendMessageCommand
         {
             WorkWeChatAppNotification = new SendWorkWeChatAppNotificationDto
             {
@@ -87,5 +86,10 @@ public class MessageFixture : IClassFixture<ApiTestFixture>
         });
         
         await unitOfWork.SaveChangesAsync();
+    }
+
+    public void Dispose()
+    {
+        _factory.Services.GetRequiredService<InMemoryDbContext>().Database.EnsureDeleted();
     }
 }

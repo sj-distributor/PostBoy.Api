@@ -3,6 +3,7 @@ using Autofac;
 using Mediator.Net;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NSubstitute;
 using PostBoy.Core.Services.Identity;
@@ -15,11 +16,6 @@ namespace PostBoy.E2ETests;
 
 public class ApiTestFixture : WebApplicationFactory<Startup>
 {
-    private readonly List<string> _tableRecordsDeletionExcludeList = new()
-    {
-        "schemaversions"
-    };
-
     protected override IHost CreateHost(IHostBuilder builder)
     {
         builder.ConfigureContainer<ContainerBuilder>(b =>
@@ -30,16 +26,17 @@ public class ApiTestFixture : WebApplicationFactory<Startup>
         });
         return base.CreateHost(builder);
     }
-    
-    public override ValueTask DisposeAsync()
+
+    public override async ValueTask DisposeAsync()
     {
-        ClearDatabaseRecord();
+        await ClearDatabaseRecord();
         
-        return base.DisposeAsync();
+        await base.DisposeAsync();
     }
     
-    private void ClearDatabaseRecord()
+    private async Task ClearDatabaseRecord()
     {
+        await Services.GetRequiredService<InMemoryDbContext>().Database.EnsureDeletedAsync();
     }
 
     private void RegisterCurrentUser(ContainerBuilder containerBuilder)
