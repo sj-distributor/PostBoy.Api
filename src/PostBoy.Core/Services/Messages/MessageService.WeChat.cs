@@ -6,7 +6,6 @@ using PostBoy.Messages.DTO.Messages;
 using PostBoy.Messages.DTO.WeChat;
 using PostBoy.Messages.Enums.WeChat;
 using PostBoy.Messages.Events.Messages;
-using Serilog;
 
 namespace PostBoy.Core.Services.Messages;
 
