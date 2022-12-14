@@ -46,14 +46,17 @@ public partial class MessageService
     private async Task<WorkWeChatSendMessageDto> GenerateWorkWeChatSendMessageAsync(
         SendWorkWeChatAppNotificationDto notificationData, WorkWeChatCorp corp, WorkWeChatCorpApplication app, CancellationToken cancellationToken)
     {
+        var accessToken = await _weChatUtilService
+            .GetWorkWeChatAccessTokenAsync(corp.CorpId, app.Secret, cancellationToken).ConfigureAwait(false);
+        
         var sendMessage = new WorkWeChatSendMessageDto
         {
+            AccessToken = accessToken,
             AgentId = app.AgentId,
             ChatId = notificationData.ChatId,
             ToTag = GenerateMultiIds(notificationData.ToTags),
             ToUser = GenerateMultiIds(notificationData.ToUsers),
-            ToParty = GenerateMultiIds(notificationData.ToParties),
-            AccessToken = await _weChatUtilService.GetWorkWeChatAccessTokenAsync(corp.CorpId, app.Secret, cancellationToken).ConfigureAwait(false)
+            ToParty = GenerateMultiIds(notificationData.ToParties)
         };
 
         if (notificationData.Text != null)
@@ -68,6 +71,7 @@ public partial class MessageService
             var file = await _weChatUtilService
                 .UploadWorkWechatFileAsync(new UploadWorkWechatFileDto
                 {
+                    AccessToken = accessToken,
                     FileName = notificationData.File.FileName,
                     FileType = notificationData.File.FileType,
                     FileContent = Convert.FromBase64String(notificationData.File.FileContent)
@@ -110,6 +114,7 @@ public partial class MessageService
                 var file = await _weChatUtilService
                     .UploadWorkWechatFileAsync(new UploadWorkWechatFileDto
                     {
+                        AccessToken = accessToken,
                         FileType = WorkWeChatFileType.Image,
                         FileName = $"{nameof(PostBoy)}{StringExtension.GenerateRandomNumbers(6)}",
                         FileContent = Convert.FromBase64String(article.FileContent)
