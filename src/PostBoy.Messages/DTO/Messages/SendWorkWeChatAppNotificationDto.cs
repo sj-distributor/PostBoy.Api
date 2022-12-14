@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using PostBoy.Messages.Enums.WeChat;
 
 namespace PostBoy.Messages.DTO.Messages;
@@ -47,6 +48,9 @@ public class SendWorkWeChatTextNotificationDto
 
 public class SendWorkWeChatFileNotificationDto
 {
+    [JsonIgnore]
+    public Guid Id { get; } = Guid.NewGuid();
+    
     /// <summary>
     /// 文件名称
     /// </summary>
@@ -78,6 +82,9 @@ public class SendWorkWeChatMpNewsNotificationDto
 
 public class SendWorkWeChatArticleNotificationDto
 {
+    [JsonIgnore]
+    public Guid Id { get; } = Guid.NewGuid();
+    
     /// <summary>
     /// 标题
     /// </summary>

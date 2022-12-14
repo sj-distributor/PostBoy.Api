@@ -14,19 +14,22 @@ public partial class MessageService
 {
     public async Task<WorkWeChatAppNotificationSentEvent> SendMessageAsync(SendWorkWeChatAppNotificationCommand command, CancellationToken cancellationToken)
     {
-        var sentMessage = await SendWorkWeChatAppNotificationAsync(command.WorkWeChatAppNotification, cancellationToken).ConfigureAwait(false);
+        var (sentMessage, sentResponse, uploadFilesDic) = 
+            await SendWorkWeChatAppNotificationAsync(command.WorkWeChatAppNotification, cancellationToken).ConfigureAwait(false);
 
         return new WorkWeChatAppNotificationSentEvent
         {
-            SentMessage = sentMessage
+            SentMessage = sentMessage,
+            SentResponse = sentResponse,
+            UploadFilesDic = uploadFilesDic
         };
     }
     
-    private async Task<WorkWeChatSendMessageDto> SendWorkWeChatAppNotificationAsync(
+    private async Task<(WorkWeChatSendMessageDto, WorkWeChatSendMessageResponseDto, Dictionary<Guid, UploadWorkWechatFileResponseDto>)> SendWorkWeChatAppNotificationAsync(
         SendWorkWeChatAppNotificationDto notificationData, CancellationToken cancellationToken)
     {
         if (notificationData == null)
-            return null;
+            return (null, null, null);
         
         var (corp, app) = await _weChatDataProvider
             .GetWorkWeChatCorpAndApplicationByAppIdAsync(notificationData.AppId, cancellationToken).ConfigureAwait(false);
@@ -34,25 +37,68 @@ public partial class MessageService
         if (corp == null || app == null)
             throw new WorkWeChatAppNotificationCorpMissingException(notificationData.AppId);
         
-        var message = await GenerateWorkWeChatSendMessageAsync(notificationData, corp, app, cancellationToken).ConfigureAwait(false);
-
-        var response = await _weChatUtilService.SendWorkWeChatMessageAsync(message, cancellationToken).ConfigureAwait(false);
-        
-        Log.Information("Send work wechat message: {@Message}, response: {@Response}", message, response);
-
-        return message;
-    }
-
-    private async Task<WorkWeChatSendMessageDto> GenerateWorkWeChatSendMessageAsync(
-        SendWorkWeChatAppNotificationDto notificationData, WorkWeChatCorp corp, WorkWeChatCorpApplication app, CancellationToken cancellationToken)
-    {
         var accessToken = await _weChatUtilService
             .GetWorkWeChatAccessTokenAsync(corp.CorpId, app.Secret, cancellationToken).ConfigureAwait(false);
         
+        var uploadFiles = 
+            await UploadWorkWeChatFilesIfRequireAsync(accessToken, notificationData, cancellationToken).ConfigureAwait(false);
+
+        var sendMessage = GenerateWorkWeChatSendMessageAsync(accessToken, notificationData, app, uploadFiles);
+
+        var sendResponse = await _weChatUtilService.SendWorkWeChatMessageAsync(sendMessage, cancellationToken).ConfigureAwait(false);
+        
+        return (sendMessage, sendResponse, uploadFiles);
+    }
+
+    private async Task<Dictionary<Guid, UploadWorkWechatFileResponseDto>> UploadWorkWeChatFilesIfRequireAsync(
+        string accessToken, SendWorkWeChatAppNotificationDto notificationData, CancellationToken cancellationToken)
+    {
+        var uploadFilesDic = new Dictionary<Guid, UploadWorkWechatFileDto>();
+
+        if (notificationData.File != null)
+        {
+            uploadFilesDic.Add(notificationData.File.Id, new UploadWorkWechatFileDto
+            {
+                AccessToken = accessToken,
+                FileName = notificationData.File.FileName,
+                FileType = notificationData.File.FileType,
+                FileContent = Convert.FromBase64String(notificationData.File.FileContent)
+            });
+        }
+        else if (notificationData.MpNews != null)
+        {
+            foreach (var article in notificationData.MpNews.Articles)
+            {
+                uploadFilesDic.Add(article.Id, new UploadWorkWechatFileDto
+                {
+                    AccessToken = accessToken,
+                    FileType = WorkWeChatFileType.Image,
+                    FileName = $"{nameof(PostBoy)}{StringExtension.GenerateRandomNumbers(6)}",
+                    FileContent = Convert.FromBase64String(article.FileContent)
+                });
+            }
+        }
+        
+        var uploadTasks = new List<Task>();
+
+        var uploadTasksDic = uploadFilesDic.ToDictionary(uploadFile => uploadFile.Key,
+            uploadFile => _weChatUtilService.UploadWorkWechatFileAsync(uploadFile.Value, cancellationToken));
+        
+        uploadTasks.AddRange(uploadTasksDic.Values);
+        
+        await Task.WhenAll(uploadTasks).ConfigureAwait(false);
+
+        return uploadTasksDic.ToDictionary(uploadTask => uploadTask.Key, uploadTask => uploadTask.Value.Result);
+    }
+    
+    private WorkWeChatSendMessageDto GenerateWorkWeChatSendMessageAsync(
+        string accessToken, SendWorkWeChatAppNotificationDto notificationData, 
+        WorkWeChatCorpApplication corpApp, IReadOnlyDictionary<Guid, UploadWorkWechatFileResponseDto> uploadFiles)
+    {
         var sendMessage = new WorkWeChatSendMessageDto
         {
             AccessToken = accessToken,
-            AgentId = app.AgentId,
+            AgentId = corpApp.AgentId,
             ChatId = notificationData.ChatId,
             ToTag = GenerateMultiIds(notificationData.ToTags),
             ToUser = GenerateMultiIds(notificationData.ToUsers),
@@ -66,17 +112,10 @@ public partial class MessageService
                 Content = notificationData.Text.Content
             };
         }
-        if (notificationData.File != null)
+        else if (notificationData.File != null)
         {
-            var file = await _weChatUtilService
-                .UploadWorkWechatFileAsync(new UploadWorkWechatFileDto
-                {
-                    AccessToken = accessToken,
-                    FileName = notificationData.File.FileName,
-                    FileType = notificationData.File.FileType,
-                    FileContent = Convert.FromBase64String(notificationData.File.FileContent)
-                }, cancellationToken).ConfigureAwait(false);
-
+            var file = uploadFiles.GetValueOrDefault(notificationData.File.Id);
+            
             switch (notificationData.File.FileType)
             {
                 case WorkWeChatFileType.Image:
@@ -105,20 +144,13 @@ public partial class MessageService
                     break;
             }
         }
-        if (notificationData.MpNews != null)
+        else if (notificationData.MpNews != null)
         {
             sendMessage.MpNews = new WorkWeChatSendMpNewsMessageDto();
             
             foreach (var article in notificationData.MpNews.Articles)
             {
-                var file = await _weChatUtilService
-                    .UploadWorkWechatFileAsync(new UploadWorkWechatFileDto
-                    {
-                        AccessToken = accessToken,
-                        FileType = WorkWeChatFileType.Image,
-                        FileName = $"{nameof(PostBoy)}{StringExtension.GenerateRandomNumbers(6)}",
-                        FileContent = Convert.FromBase64String(article.FileContent)
-                    }, cancellationToken).ConfigureAwait(false);
+                var file = uploadFiles.GetValueOrDefault(article.Id);
                 
                 sendMessage.MpNews.Articles.Add(new WorkWeChatSendMpNewsMessageDetailDto
                 {
