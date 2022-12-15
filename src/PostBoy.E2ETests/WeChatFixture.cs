@@ -3,13 +3,17 @@ using PostBoy.Core.Data;
 using PostBoy.Core.Domain.WeChat;
 using PostBoy.E2ETests.Mocks;
 using PostBoy.Messages.Commands.Messages;
+using PostBoy.Messages.Commands.WeChat;
 using PostBoy.Messages.DTO.Messages;
+using PostBoy.Messages.DTO.WeChat;
 using PostBoy.Messages.Enums.WeChat;
+using Shouldly;
+using Xunit;
 
 namespace PostBoy.E2ETests;
 
 [Collection("Sequential")]
-public class MessageFixture : IClassFixture<ApiTestFixture>, IDisposable
+public class WeChatFixture : IClassFixture<ApiTestFixture>, IDisposable
 {
     private readonly HttpClient _client;
     private readonly ApiTestFixture _factory;
@@ -17,22 +21,42 @@ public class MessageFixture : IClassFixture<ApiTestFixture>, IDisposable
     private const string AppId = "PostBoy_AppId";
     private readonly List<string> _testUsers = new() { "mars", "6uo" }; 
 
-    public MessageFixture(ApiTestFixture factory)
+    public WeChatFixture(ApiTestFixture factory)
     {
         _factory = factory;
         _client = _factory.CreateClient();
     }
 
     [Fact]
-    public async Task ShouldSendWorkWeChatTextNotification()
+    public async Task ShouldCreateWorkWeChatGroup()
     {
         await CreateWorkWeChatCorpAndApplication();
 
+        var response = await CreateWorkWeChatGroup(new CreateWorkWeChatGroupCommand
+        {
+            AppId = AppId,
+            Name = "PostBoy Test",
+            UserList = _testUsers
+        });
+        
+        response.ChatId.ShouldNotBeEmpty();
+    }
+    
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ShouldSendWorkWeChatTextNotification(bool sendToChat)
+    {
+        await CreateWorkWeChatCorpAndApplication();
+
+        var chatId = await CreateWorkWeChatGroupIfRequire(sendToChat);
+        
         await _client.PostAsJsonAsync("api/message/send", new SendMessageCommand
         {
             WorkWeChatAppNotification = new SendWorkWeChatAppNotificationDto
             {
                 AppId = AppId,
+                ChatId = chatId,
                 ToUsers = _testUsers,
                 Text = new SendWorkWeChatTextNotificationDto
                 {
@@ -42,16 +66,21 @@ public class MessageFixture : IClassFixture<ApiTestFixture>, IDisposable
         });
     }
 
-    [Fact]
-    public async Task ShouldSendWorkWeChatImageNotification()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ShouldSendWorkWeChatImageNotification(bool sendToChat)
     {
         await CreateWorkWeChatCorpAndApplication();
 
+        var chatId = await CreateWorkWeChatGroupIfRequire(sendToChat);
+        
         await _client.PostAsJsonAsync("api/message/send", new SendMessageCommand
         {
             WorkWeChatAppNotification = new SendWorkWeChatAppNotificationDto
             {
                 AppId = AppId,
+                ChatId = chatId,
                 ToUsers = _testUsers,
                 File = new SendWorkWeChatFileNotificationDto
                 {
@@ -177,6 +206,31 @@ public class MessageFixture : IClassFixture<ApiTestFixture>, IDisposable
         });
         
         await unitOfWork.SaveChangesAsync();
+    }
+
+    private async Task<string> CreateWorkWeChatGroupIfRequire(bool create)
+    {
+        var chatId = string.Empty;
+
+        if (!create) return chatId;
+        
+        var response = await CreateWorkWeChatGroup(new CreateWorkWeChatGroupCommand
+        {
+            AppId = AppId,
+            Name = "PostBoy Test",
+            UserList = _testUsers
+        });
+
+        chatId = response.ChatId;
+
+        return chatId;
+    }
+
+    private async Task<CreateWorkWeChatGroupResponseDto> CreateWorkWeChatGroup(CreateWorkWeChatGroupCommand command)
+    {
+        var response = await _client.PostAsJsonAsync("api/wechat/work/group/create", command);
+
+        return await response.Content.ReadAsAsync<CreateWorkWeChatGroupResponseDto>();
     }
 
     public void Dispose()
