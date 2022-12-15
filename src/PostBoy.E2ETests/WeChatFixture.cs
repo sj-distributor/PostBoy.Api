@@ -19,6 +19,7 @@ public class WeChatFixture : IClassFixture<ApiTestFixture>, IDisposable
     private readonly ApiTestFixture _factory;
 
     private const string AppId = "PostBoy_AppId";
+    private const string ChatId = "PostBoyChatIdDefaultForTest";
     private readonly List<string> _testUsers = new() { "mars", "6uo" }; 
 
     public WeChatFixture(ApiTestFixture factory)
@@ -217,13 +218,14 @@ public class WeChatFixture : IClassFixture<ApiTestFixture>, IDisposable
         var response = await CreateWorkWeChatGroup(new CreateWorkWeChatGroupCommand
         {
             AppId = AppId,
+            ChatId = ChatId,
             Name = "PostBoy Test",
             UserList = _testUsers
         });
 
         chatId = response.ChatId;
 
-        return chatId;
+        return chatId ?? ChatId;
     }
 
     private async Task<CreateWorkWeChatGroupResponseDto> CreateWorkWeChatGroup(CreateWorkWeChatGroupCommand command)
