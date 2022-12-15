@@ -64,10 +64,11 @@ public class WeChatClient : IWeChatClient
         WorkWeChatSendMessageDto message, CancellationToken cancellationToken)
     {
         var sendUrl = $"https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={message.AccessToken}";
+        var sendToChatUrl = $"https://qyapi.weixin.qq.com/cgi-bin/appchat/send?access_token={message.AccessToken}";
 
         return await _httpClientFactory
-            .PostAsJsonAsync<WorkWeChatSendMessageResponseDto>(sendUrl, message,
-                cancellationToken).ConfigureAwait(false);
+            .PostAsJsonAsync<WorkWeChatSendMessageResponseDto>(
+                string.IsNullOrEmpty(message.ChatId) ? sendUrl : sendToChatUrl, message, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<UploadWorkWechatFileResponseDto> UploadWorkWechatFileAsync(
