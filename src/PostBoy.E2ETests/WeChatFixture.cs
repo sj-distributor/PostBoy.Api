@@ -95,16 +95,21 @@ public class WeChatFixture : IClassFixture<ApiTestFixture>, IDisposable
         });
     }
     
-    [Fact]
-    public async Task ShouldSendWorkWeChatVoiceNotification()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ShouldSendWorkWeChatVoiceNotification(bool sendToChat)
     {
         await CreateWorkWeChatCorpAndApplication();
 
+        var chatId = await CreateWorkWeChatGroupIfRequire(sendToChat);
+        
         await _client.PostAsJsonAsync("api/message/send", new SendMessageCommand
         {
             WorkWeChatAppNotification = new SendWorkWeChatAppNotificationDto
             {
                 AppId = AppId,
+                ChatId = chatId,
                 ToUsers = _testUsers,
                 File = new SendWorkWeChatFileNotificationDto
                 {
@@ -118,16 +123,21 @@ public class WeChatFixture : IClassFixture<ApiTestFixture>, IDisposable
         });
     }
     
-    [Fact]
-    public async Task ShouldSendWorkWeChatVideoNotification()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ShouldSendWorkWeChatVideoNotification(bool sendToChat)
     {
         await CreateWorkWeChatCorpAndApplication();
 
+        var chatId = await CreateWorkWeChatGroupIfRequire(sendToChat);
+        
         await _client.PostAsJsonAsync("api/message/send", new SendMessageCommand
         {
             WorkWeChatAppNotification = new SendWorkWeChatAppNotificationDto
             {
                 AppId = AppId,
+                ChatId = chatId,
                 ToUsers = _testUsers,
                 File = new SendWorkWeChatFileNotificationDto
                 {
@@ -141,16 +151,21 @@ public class WeChatFixture : IClassFixture<ApiTestFixture>, IDisposable
         });
     }
     
-    [Fact]
-    public async Task ShouldSendWorkWeChatMpNewsNotification()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ShouldSendWorkWeChatMpNewsNotification(bool sendToChat)
     {
         await CreateWorkWeChatCorpAndApplication();
 
+        var chatId = await CreateWorkWeChatGroupIfRequire(sendToChat);
+        
         await _client.PostAsJsonAsync("api/message/send", new SendMessageCommand
         {
             WorkWeChatAppNotification = new SendWorkWeChatAppNotificationDto
             {
                 AppId = AppId,
+                ChatId = chatId,
                 ToUsers = _testUsers,
                 MpNews = new SendWorkWeChatMpNewsNotificationDto
                 {
