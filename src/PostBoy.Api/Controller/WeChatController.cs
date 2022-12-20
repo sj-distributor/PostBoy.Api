@@ -1,4 +1,5 @@
 using Mediator.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PostBoy.Messages.Commands.WeChat;
 using PostBoy.Messages.Requests.WeChat;
@@ -24,6 +25,7 @@ public class WeChatController : ControllerBase
         return Ok(response);
     }
     
+    [Authorize]
     [Route("work/corps"), HttpGet]
     public async Task<IActionResult> GetWorkWeChatCorpsAsync()
     {
@@ -33,6 +35,7 @@ public class WeChatController : ControllerBase
         return Ok(response);
     }
     
+    [Authorize]
     [Route("work/corp/apps"), HttpGet]
     public async Task<IActionResult> GetWorkWeChatCorpApplicationsAsync([FromQuery] GetWorkWeChatCorpApplicationsRequest request)
     {
