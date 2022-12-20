@@ -3,12 +3,19 @@ using PostBoy.Core.Ioc;
 using PostBoy.Core.Services.WeChat.Exceptions;
 using PostBoy.Messages.DTO.WeChat;
 using PostBoy.Messages.Commands.WeChat;
+using PostBoy.Messages.Requests.WeChat;
 
 namespace PostBoy.Core.Services.WeChat;
 
 public interface IWeChatService : IScopedDependency
 {
     Task<CreateWorkWeChatGroupResponse> CreateWorkWeChatGroupAsync(CreateWorkWeChatGroupCommand command, CancellationToken cancellationToken);
+
+    Task<GetWorkWeChatCorpsResponse> GetWorkWeChatCorpsAsync(
+        GetWorkWeChatCorpsRequest request, CancellationToken cancellationToken);
+
+    Task<GetWorkWeChatCorpApplicationsResponse> GetWorkWeChatCorpApplicationsAsync(
+        GetWorkWeChatCorpApplicationsRequest request, CancellationToken cancellationToken);
 }
 
 public class WeChatService : IWeChatService
@@ -43,6 +50,29 @@ public class WeChatService : IWeChatService
         return new CreateWorkWeChatGroupResponse
         {
             Data = response
+        };
+    }
+
+    public async Task<GetWorkWeChatCorpsResponse> GetWorkWeChatCorpsAsync(
+        GetWorkWeChatCorpsRequest request, CancellationToken cancellationToken)
+    {
+        var corps = await _weChatDataProvider.GetWorkWeChatCorpsAsync(cancellationToken).ConfigureAwait(false);
+
+        return new GetWorkWeChatCorpsResponse
+        {
+            Data = _mapper.Map<List<WorkWeChatCorpDto>>(corps)
+        };
+    }
+    
+    public async Task<GetWorkWeChatCorpApplicationsResponse> GetWorkWeChatCorpApplicationsAsync(
+        GetWorkWeChatCorpApplicationsRequest request, CancellationToken cancellationToken)
+    {
+        var corpApps = await _weChatDataProvider
+            .GetWorkWeChatCorpApplicationsAsync(request.CorpId, cancellationToken).ConfigureAwait(false);
+
+        return new GetWorkWeChatCorpApplicationsResponse
+        {
+            Data = _mapper.Map<List<WorkWeChatCorpApplicationDto>>(corpApps)
         };
     }
 }

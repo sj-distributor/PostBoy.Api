@@ -1,6 +1,7 @@
 using Mediator.Net;
 using Microsoft.AspNetCore.Mvc;
 using PostBoy.Messages.Commands.WeChat;
+using PostBoy.Messages.Requests.WeChat;
 
 namespace PostBoy.Api.Controller;
 
@@ -20,6 +21,24 @@ public class WeChatController : ControllerBase
     {
         var response = await _mediator.SendAsync<CreateWorkWeChatGroupCommand, CreateWorkWeChatGroupResponse>(command).ConfigureAwait(false);
 
-        return Ok(response.Data);
+        return Ok(response);
+    }
+    
+    [Route("work/corps"), HttpGet]
+    public async Task<IActionResult> GetWorkWeChatCorpsAsync()
+    {
+        var response = await _mediator
+            .RequestAsync<GetWorkWeChatCorpsRequest, GetWorkWeChatCorpsResponse>(new GetWorkWeChatCorpsRequest()).ConfigureAwait(false);
+
+        return Ok(response);
+    }
+    
+    [Route("work/corp/apps"), HttpGet]
+    public async Task<IActionResult> GetWorkWeChatCorpApplicationsAsync([FromQuery] GetWorkWeChatCorpApplicationsRequest request)
+    {
+        var response = await _mediator
+            .RequestAsync<GetWorkWeChatCorpApplicationsRequest, GetWorkWeChatCorpApplicationsResponse>(request).ConfigureAwait(false);
+
+        return Ok(response);
     }
 }
