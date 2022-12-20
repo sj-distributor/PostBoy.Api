@@ -7,6 +7,10 @@ namespace PostBoy.Core.Services.WeChat;
 
 public interface IWeChatDataProvider : IScopedDependency
 {
+    Task<List<WorkWeChatCorp>> GetWorkWeChatCorpsAsync(CancellationToken cancellationToken);
+    
+    Task<List<WorkWeChatCorpApplication>> GetWorkWeChatCorpApplicationsAsync(Guid corpId, CancellationToken cancellationToken);
+    
     Task<(WorkWeChatCorp, WorkWeChatCorpApplication)>
         GetWorkWeChatCorpAndApplicationByAppIdAsync(string appId, CancellationToken cancellationToken);
 }
@@ -20,6 +24,18 @@ public class WeChatDataProvider : IWeChatDataProvider
     {
         _mapper = mapper;
         _repository = repository;
+    }
+
+    public async Task<List<WorkWeChatCorp>> GetWorkWeChatCorpsAsync(CancellationToken cancellationToken)
+    {
+        return await _repository.GetAllAsync<WorkWeChatCorp>(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<List<WorkWeChatCorpApplication>> GetWorkWeChatCorpApplicationsAsync(Guid corpId, CancellationToken cancellationToken)
+    {
+        return await _repository
+            .ToListAsync<WorkWeChatCorpApplication>(x => x.WorkWeChatCorpId == corpId, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task<(WorkWeChatCorp, WorkWeChatCorpApplication)> 
