@@ -12,14 +12,32 @@ public class SendWorkWeChatAppNotificationDto
         ToParties = new List<string>();
     }
     
+    /// <summary>
+    /// 企业微信应用Id，由PostBoy提供
+    /// </summary>
     public string AppId { get; set; }
     
+    /// <summary>
+    /// 企业微信群聊Id
+    /// </summary>
     public string ChatId { get; set; }
 
+    /// <summary>
+    /// 指定接收消息的标签，标签ID列表，最多支持100个。
+    /// 当ToUsers为"@all"时忽略本参数
+    /// </summary>
     public List<string> ToTags { get; set; }
 
+    /// <summary>
+    /// 指定接收消息的成员，成员ID列表（最多支持1000个）。
+    /// 特殊情况：指定为"@all"，则向该企业应用的全部成员发送
+    /// </summary>
     public List<string> ToUsers { get; set; }
     
+    /// <summary>
+    /// 指定接收消息的部门，部门ID列表，最多支持100个。
+    /// 当ToUsers为"@all"时忽略本参数
+    /// </summary>
     public List<string> ToParties { get; set; }
     
     /// <summary>
