@@ -7,6 +7,7 @@ using PostBoy.Messages.Commands.WeChat;
 using PostBoy.Messages.DTO.Messages;
 using PostBoy.Messages.DTO.WeChat;
 using PostBoy.Messages.Enums.WeChat;
+using PostBoy.Messages.Responses;
 using Shouldly;
 using Xunit;
 
@@ -40,7 +41,7 @@ public class WeChatFixture : IClassFixture<ApiTestFixture>, IDisposable
             UserList = _testUsers
         });
         
-        response.ChatId.ShouldNotBeEmpty();
+        response.Data.ChatId.ShouldNotBeEmpty();
     }
     
     [Theory]
@@ -238,16 +239,16 @@ public class WeChatFixture : IClassFixture<ApiTestFixture>, IDisposable
             UserList = _testUsers
         });
 
-        chatId = response.ChatId;
+        chatId = response.Data.ChatId;
 
         return chatId ?? ChatId;
     }
 
-    private async Task<CreateWorkWeChatGroupResponseDto> CreateWorkWeChatGroup(CreateWorkWeChatGroupCommand command)
+    private async Task<PostBoyResponse<CreateWorkWeChatGroupResponseDto>> CreateWorkWeChatGroup(CreateWorkWeChatGroupCommand command)
     {
         var response = await _client.PostAsJsonAsync("api/wechat/work/group/create", command);
 
-        return await response.Content.ReadAsAsync<CreateWorkWeChatGroupResponseDto>();
+        return await response.Content.ReadAsAsync<PostBoyResponse<CreateWorkWeChatGroupResponseDto>>();
     }
 
     public void Dispose()
