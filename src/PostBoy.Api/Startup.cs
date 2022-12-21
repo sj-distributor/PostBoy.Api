@@ -1,6 +1,4 @@
-using Serilog;
-using Autofac;
-using PostBoy.Core;
+using PostBoy.Api.Authentication;
 using PostBoy.Api.Extensions;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -30,6 +28,11 @@ public class Startup
         services.AddCorsPolicy(Configuration);
         services.AddControllers();
         services.AddHangfireInternal(Configuration);
+        services.AddAuthentication(options =>
+        {
+            options.DefaultScheme = ApiKeyAuthenticationOptions.DefaultScheme;
+            options.DefaultChallengeScheme = ApiKeyAuthenticationOptions.DefaultScheme;
+        }).AddApiKeySupport();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -46,9 +49,9 @@ public class Startup
         
         app.UseCors();
         app.UseRouting();
-        app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseHttpsRedirection();
         app.UseHangfireInternal(Configuration);
         app.ScanHangfireRecurringJobs(Configuration);
         app.UseEndpoints(endpoints =>
