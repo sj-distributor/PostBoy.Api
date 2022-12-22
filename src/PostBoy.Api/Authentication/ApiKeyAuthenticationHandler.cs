@@ -7,7 +7,7 @@ namespace PostBoy.Api.Authentication;
 
 public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions>
 {
-    private readonly (string UserName, string Key)[] _apiKeys = new[] { ("admin", "123") };
+    private readonly (string Owner, string Key)[] _apiKeys = new[] { ("admin", "123") };
     private readonly ApiKeyAuthenticationOptions _options;
 
     public ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options, ILoggerFactory logger,
@@ -37,7 +37,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         {
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, apiKey.UserName)
+                new Claim(ClaimTypes.Name, apiKey.Owner)
             };
             var identity = new ClaimsIdentity(claims, authenticationType: _options.AuthenticationType);
             
