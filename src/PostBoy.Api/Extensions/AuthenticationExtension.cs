@@ -1,7 +1,9 @@
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using PostBoy.Api.Authentication;
 using PostBoy.Core.Services.Identity;
 using PostBoy.Core.Settings.Authentication;
 
@@ -36,4 +38,11 @@ public static class AuthenticationExtension
 
         services.AddScoped<ICurrentUser, CurrentUser>();
     }
+     
+     public static AuthenticationBuilder AddApiKeySupport(this AuthenticationBuilder authenticationBuilder)
+     {
+         return authenticationBuilder.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
+             "X-API-KEY",
+             options => { });
+     }
 }

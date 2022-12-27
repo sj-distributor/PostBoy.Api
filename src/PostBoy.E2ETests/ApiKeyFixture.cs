@@ -32,7 +32,7 @@ public class ApiKeyFixture : IClassFixture<ApiTestFixture>, IDisposable
         await unitOfWork.SaveChangesAsync();
         
         var request = new HttpRequestMessage(HttpMethod.Get, "api/WeChat/apiKeyTest");
-        request.Headers.Add("apiKey","userAccountApiKey.ApiKey");
+        request.Headers.Add("X-API-KEY","123");
         
         var client = _factory.CreateClient();
         var responseOk = await client.SendAsync(request);

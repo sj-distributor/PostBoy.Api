@@ -29,9 +29,11 @@ public class Startup
         services.AddCorsPolicy(Configuration);
         services.AddControllers();
         services.AddHangfireInternal(Configuration);
-        services.AddAuthentication(defaultScheme:"apiKey")
-            .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>("apiKey", _ => { });
-        
+        services.AddAuthentication(options =>
+        {
+            options.DefaultScheme = "X-API-KEY";
+            options.DefaultChallengeScheme = "X-API-KEY";
+        }).AddApiKeySupport();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

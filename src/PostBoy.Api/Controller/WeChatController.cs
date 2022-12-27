@@ -46,7 +46,7 @@ public class WeChatController : ControllerBase
     }
     
     [Route("apiKeyTest"), HttpGet]
-    [Authorize(AuthenticationSchemes = "apiKey")]
+    [Authorize(AuthenticationSchemes = "X-API-KEY")]
     public IActionResult ApiKeyAuthTest()
     {
         return Ok();

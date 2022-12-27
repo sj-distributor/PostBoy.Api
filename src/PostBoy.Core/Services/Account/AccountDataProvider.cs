@@ -24,8 +24,7 @@ public interface IAccountDataProvider : IScopedDependency
     
     Task<UserAccount> CreateUserAccount(string userName, string password, CancellationToken cancellationToken);
     
-    Task<UserAccountApiKeyDto> GetUserAccountByApiKeyAsync(string apiKey , 
-        CancellationToken cancellationToken);
+    Task<UserAccountApiKeyDto> GetUserAccountByApiKeyAsync(string apiKey, CancellationToken cancellationToken);
 }
 
 public partial class AccountDataProvider : IAccountDataProvider
@@ -113,5 +112,4 @@ public partial class AccountDataProvider : IAccountDataProvider
 
         return account;
     }
-    
 }
