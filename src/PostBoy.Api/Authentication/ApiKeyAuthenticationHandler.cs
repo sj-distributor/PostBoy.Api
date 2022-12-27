@@ -8,18 +8,14 @@ namespace PostBoy.Api.Authentication;
 
 public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions>
 {
-    private readonly (string Owner, string Key)[] _apiKeys = new[] { ("admin", "123") };
-    private readonly ApiKeyAuthenticationOptions _options;
     private readonly IAccountService _service;
-
+    
     public ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options, ILoggerFactory logger,
         UrlEncoder encoder, ISystemClock clock ,IAccountService service) : base(options, logger, encoder, clock)
     {
         _service = service;
-        _options = options.CurrentValue;
     }
     
-
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         if (!Request.Headers.ContainsKey("apiKey"))

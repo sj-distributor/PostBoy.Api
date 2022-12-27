@@ -49,6 +49,6 @@ public class WeChatController : ControllerBase
     [Authorize(AuthenticationSchemes = "apiKey")]
     public IActionResult ApiKeyAuthTest()
     {
-        return Ok(User.Identity);
+        return Ok();
     }
 }
