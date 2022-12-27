@@ -1,9 +1,9 @@
 using System.Text;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using PostBoy.Api.Authentication;
+using PostBoy.Api.Authentication.ApiKey;
 using PostBoy.Core.Services.Identity;
 using PostBoy.Core.Settings.Authentication;
 
@@ -28,14 +28,15 @@ public static class AuthenticationExtension
                              Encoding.UTF8.GetBytes(new JwtSymmetricKeySetting(configuration).Value
                                  .PadRight(256 / 8, '\0')))
                  };
-             }).AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
-                 "X-API-KEY",
-                 options => { });
+             })
+             .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
+                 AuthenticationSchemeConstants.ApiKeyAuthenticationScheme, _ => { });
 
         services.AddAuthorization(options =>
         {
             options.DefaultPolicy = new AuthorizationPolicyBuilder(
-                JwtBearerDefaults.AuthenticationScheme).RequireAuthenticatedUser().Build();
+                JwtBearerDefaults.AuthenticationScheme, 
+                AuthenticationSchemeConstants.ApiKeyAuthenticationScheme).RequireAuthenticatedUser().Build();
         });
 
         services.AddScoped<ICurrentUser, CurrentUser>();
