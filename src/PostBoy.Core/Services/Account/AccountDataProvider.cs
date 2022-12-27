@@ -4,9 +4,11 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using PostBoy.Core.Data;
 using PostBoy.Core.Domain.Account;
+using PostBoy.Core.Domain.Authentication;
 using PostBoy.Core.Extensions;
 using PostBoy.Core.Ioc;
 using PostBoy.Messages.DTO.Account;
+using PostBoy.Messages.DTO.Authentication;
 
 namespace PostBoy.Core.Services.Account;
 
@@ -21,6 +23,9 @@ public interface IAccountDataProvider : IScopedDependency
     List<Claim> GenerateClaimsFromUserAccount(UserAccountDto account);
     
     Task<UserAccount> CreateUserAccount(string userName, string password, CancellationToken cancellationToken);
+    
+    Task<UserAccountApiKeyDto> GetUserAccountByApiKeyAsync(string apiKey , 
+        CancellationToken cancellationToken);
 }
 
 public partial class AccountDataProvider : IAccountDataProvider
@@ -94,4 +99,19 @@ public partial class AccountDataProvider : IAccountDataProvider
 
         return userAccount;
     }
+
+    public async Task<UserAccountApiKeyDto> GetUserAccountByApiKeyAsync(string apiKey, CancellationToken cancellationToken)
+    {
+        var query = _repository.QueryNoTracking<UserAccountApiKey>();
+        
+        if (!string.IsNullOrEmpty(apiKey))
+            query = query.Where(x => x.ApiKey == apiKey);
+        
+        var account = await query
+            .ProjectTo<UserAccountApiKeyDto>(_mapper.ConfigurationProvider)
+            .SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+
+        return account;
+    }
+    
 }

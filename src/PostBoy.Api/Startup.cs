@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using PostBoy.Api.Authentication;
 using PostBoy.Api.Extensions;
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -28,11 +29,9 @@ public class Startup
         services.AddCorsPolicy(Configuration);
         services.AddControllers();
         services.AddHangfireInternal(Configuration);
-        services.AddAuthentication(options =>
-        {
-            options.DefaultScheme = ApiKeyAuthenticationOptions.DefaultScheme;
-            options.DefaultChallengeScheme = ApiKeyAuthenticationOptions.DefaultScheme;
-        }).AddApiKeySupport();
+        services.AddAuthentication(defaultScheme:"apiKey")
+            .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>("apiKey", _ => { });
+        
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -2,6 +2,7 @@
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
+using PostBoy.Core.Services.Account;
 
 namespace PostBoy.Api.Authentication;
 
@@ -9,49 +10,50 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
 {
     private readonly (string Owner, string Key)[] _apiKeys = new[] { ("admin", "123") };
     private readonly ApiKeyAuthenticationOptions _options;
+    private readonly IAccountService _service;
 
     public ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options, ILoggerFactory logger,
-        UrlEncoder encoder, ISystemClock clock) : base(options, logger, encoder, clock)
+        UrlEncoder encoder, ISystemClock clock ,IAccountService service) : base(options, logger, encoder, clock)
     {
+        _service = service;
         _options = options.CurrentValue;
     }
+    
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        if (Request.HttpContext.User.Identity == null || Request.HttpContext.User.Identity.IsAuthenticated)
-            return AuthenticateResult.NoResult();
-            
-        if (!Request.Headers.ContainsKey("X-API-KEY"))
+        if (!Request.Headers.ContainsKey("apiKey"))
             return AuthenticateResult.NoResult();
         
-        var providedApiKey = Context.Request.Headers["X-API-KEY"].ToString();
+        var providedApiKey = Context.Request.Headers["apiKey"].ToString();
         
         if (string.IsNullOrWhiteSpace(providedApiKey))
         {
             return AuthenticateResult.NoResult();
         }
-
-        var apiKey = _apiKeys.FirstOrDefault(k => k.Key == providedApiKey);
         
-        if (apiKey != default)
+        var account = await _service.GetUserAccountByApiKeyAsync(providedApiKey, CancellationToken.None).ConfigureAwait(false);
+        
+        if (account != null)
         {
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, apiKey.Owner)
+                new Claim(ClaimTypes.Name, "apiKey"),
+                new Claim(ClaimTypes.NameIdentifier, account.UserAccountId.ToString())
             };
-            var identity = new ClaimsIdentity(claims, authenticationType: _options.AuthenticationType);
+            var identity = new ClaimsIdentity(claims, authenticationType: "apiKey");
             
             var identities = new List<ClaimsIdentity> { identity };
             
             var principal = new ClaimsPrincipal(identities);
             
-            var ticket = new AuthenticationTicket(principal, authenticationScheme: _options.Scheme);
+            var ticket = new AuthenticationTicket(principal, authenticationScheme: "apiKey");
 
             await Task.CompletedTask;
             
             return AuthenticateResult.Success(ticket);
         }
 
-        return AuthenticateResult.Fail("Invalid X-API-KEY provided.");
+        return AuthenticateResult.Fail("Invalid apkKey provided.");
     }
 }

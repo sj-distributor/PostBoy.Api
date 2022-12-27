@@ -1,6 +1,8 @@
 using System.Net;
+using PostBoy.Core.Domain.Authentication;
 using PostBoy.Core.Ioc;
 using PostBoy.Messages.Commands.Account;
+using PostBoy.Messages.DTO.Authentication;
 using PostBoy.Messages.Events.Account;
 using PostBoy.Messages.Requests.Account;
 
@@ -11,6 +13,8 @@ public interface IAccountService : IScopedDependency
     Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken);
     
     Task<UserAccountRegisteredEvent> RegisterAsync(RegisterCommand command, CancellationToken cancellationToken);
+    
+    Task<UserAccountApiKeyDto> GetUserAccountByApiKeyAsync(string apiKey, CancellationToken cancellationToken);
 }
 
 public class AccountService : IAccountService
@@ -43,5 +47,11 @@ public class AccountService : IAccountService
         await _accountDataProvider.CreateUserAccount(command.UserName, command.Password, cancellationToken).ConfigureAwait(false);
 
         return new UserAccountRegisteredEvent();
+    }
+
+    public async Task<UserAccountApiKeyDto> GetUserAccountByApiKeyAsync(string apiKey,
+        CancellationToken cancellationToken)
+    {
+        return await _accountDataProvider.GetUserAccountByApiKeyAsync(apiKey, cancellationToken);
     }
 }
