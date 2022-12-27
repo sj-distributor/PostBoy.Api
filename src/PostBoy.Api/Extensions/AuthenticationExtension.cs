@@ -28,7 +28,9 @@ public static class AuthenticationExtension
                              Encoding.UTF8.GetBytes(new JwtSymmetricKeySetting(configuration).Value
                                  .PadRight(256 / 8, '\0')))
                  };
-             });
+             }).AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
+                 "X-API-KEY",
+                 options => { });
 
         services.AddAuthorization(options =>
         {
@@ -38,11 +40,4 @@ public static class AuthenticationExtension
 
         services.AddScoped<ICurrentUser, CurrentUser>();
     }
-     
-     public static AuthenticationBuilder AddApiKeySupport(this AuthenticationBuilder authenticationBuilder)
-     {
-         return authenticationBuilder.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
-             "X-API-KEY",
-             options => { });
-     }
 }

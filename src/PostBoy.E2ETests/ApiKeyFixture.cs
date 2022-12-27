@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using PostBoy.Core.Data;
 using PostBoy.Core.Domain.Authentication;
@@ -21,20 +22,24 @@ public class ApiKeyFixture : IClassFixture<ApiTestFixture>, IDisposable
     {
         var repo = _factory.Services.GetRequiredService<IRepository>();
         var unitOfWork = _factory.Services.GetRequiredService<IUnitOfWork>();
-
+        
         var userAccountApiKey = new UserAccountApiKey()
         {
             UserAccountId = 123,
             ApiKey = "123"
         };
-
+        
         await repo.InsertAsync(userAccountApiKey).ConfigureAwait(false);
         await unitOfWork.SaveChangesAsync();
         
-        var request = new HttpRequestMessage(HttpMethod.Get, "api/WeChat/apiKeyTest");
-        request.Headers.Add("X-API-KEY","123");
+        var request = new HttpRequestMessage(HttpMethod.Post, "api/Message/send");
         
+        request.Headers.Add("X-API-KEY","1234");
+
         var client = _factory.CreateClient();
+        
+        request.Content = new StringContent("{}", Encoding.UTF8, "application/json");
+        
         var responseOk = await client.SendAsync(request);
         
         Assert.True(responseOk.IsSuccessStatusCode);

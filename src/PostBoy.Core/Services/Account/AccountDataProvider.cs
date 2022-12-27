@@ -101,15 +101,8 @@ public partial class AccountDataProvider : IAccountDataProvider
 
     public async Task<UserAccountApiKeyDto> GetUserAccountByApiKeyAsync(string apiKey, CancellationToken cancellationToken)
     {
-        var query = _repository.QueryNoTracking<UserAccountApiKey>();
-        
-        if (!string.IsNullOrEmpty(apiKey))
-            query = query.Where(x => x.ApiKey == apiKey);
-        
-        var account = await query
+        return await _repository.QueryNoTracking<UserAccountApiKey>().Where(x => x.ApiKey == apiKey)
             .ProjectTo<UserAccountApiKeyDto>(_mapper.ConfigurationProvider)
             .SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
-
-        return account;
     }
 }

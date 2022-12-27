@@ -6,7 +6,7 @@ namespace PostBoy.Core.Domain.Authentication;
 public class UserAccountApiKey : IEntity
 {
     [Key]
-    [Column("id", TypeName = "varchar(36)")]
+    [Column("id", TypeName = "char(36)")]
     public Guid Id { get; set; }
     
     [Column("user_account_id")]

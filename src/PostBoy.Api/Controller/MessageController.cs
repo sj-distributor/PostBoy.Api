@@ -1,4 +1,5 @@
 using Mediator.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PostBoy.Messages.Commands.Messages;
 
@@ -14,7 +15,8 @@ public class MessageController : ControllerBase
     {
         _mediator = mediator;
     }
-
+    
+    [Authorize(AuthenticationSchemes = "X-API-KEY")]
     [Route("send"), HttpPost]
     public async Task<IActionResult> SendMessageAsync([FromBody] SendMessageCommand command)
     {

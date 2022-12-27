@@ -33,7 +33,7 @@ public class Startup
         {
             options.DefaultScheme = "X-API-KEY";
             options.DefaultChallengeScheme = "X-API-KEY";
-        }).AddApiKeySupport();
+        });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
