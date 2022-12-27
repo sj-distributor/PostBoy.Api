@@ -10,6 +10,7 @@ using Xunit;
 
 namespace PostBoy.E2ETests;
 
+[Collection("Sequential")]
 public class AuthenticationFixture : IClassFixture<ApiTestFixture>, IDisposable
 {
     private readonly HttpClient _client;
