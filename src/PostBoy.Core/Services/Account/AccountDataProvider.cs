@@ -1,9 +1,10 @@
-using System.Security.Claims;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using PostBoy.Core.Data;
 using PostBoy.Core.Domain.Account;
+using PostBoy.Core.Domain.Authentication;
 using PostBoy.Core.Extensions;
 using PostBoy.Core.Ioc;
 using PostBoy.Messages.DTO.Account;
@@ -18,6 +19,8 @@ public interface IAccountDataProvider : IScopedDependency
     Task<UserAccountDto> GetUserAccountAsync(Guid? id = null, string username = null, bool includeRoles = false,
         CancellationToken cancellationToken = default);
 
+    Task<UserAccountDto> GetUserAccountByApiKeyAsync(string apiKey, CancellationToken cancellationToken = default);
+    
     List<Claim> GenerateClaimsFromUserAccount(UserAccountDto account);
     
     Task<UserAccount> CreateUserAccount(string userName, string password, CancellationToken cancellationToken);
@@ -68,6 +71,19 @@ public partial class AccountDataProvider : IAccountDataProvider
         return account;
     }
 
+    public async Task<UserAccountDto> GetUserAccountByApiKeyAsync(string apiKey, CancellationToken cancellationToken = default)
+    {
+        var accountApiKey = await _repository.QueryNoTracking<UserAccountApiKey>()
+            .Where(x => x.ApiKey == apiKey)
+            .SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+
+        if (accountApiKey == null)
+            return null;
+
+        return await GetUserAccountAsync(id: accountApiKey.UserAccountId, includeRoles: true,
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+    }
+    
     public List<Claim> GenerateClaimsFromUserAccount(UserAccountDto account)
     {
         var claims = new List<Claim>

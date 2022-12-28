@@ -1,6 +1,5 @@
-using Serilog;
-using Autofac;
-using PostBoy.Core;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using PostBoy.Api.Authentication;
 using PostBoy.Api.Extensions;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -46,9 +45,9 @@ public class Startup
         
         app.UseCors();
         app.UseRouting();
-        app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseHttpsRedirection();
         app.UseHangfireInternal(Configuration);
         app.ScanHangfireRecurringJobs(Configuration);
         app.UseEndpoints(endpoints =>

@@ -6,6 +6,7 @@ using PostBoy.Messages.Requests.WeChat;
 
 namespace PostBoy.Api.Controller;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class WeChatController : ControllerBase
@@ -25,7 +26,6 @@ public class WeChatController : ControllerBase
         return Ok(response);
     }
     
-    [Authorize]
     [Route("work/corps"), HttpGet]
     public async Task<IActionResult> GetWorkWeChatCorpsAsync()
     {
@@ -35,7 +35,6 @@ public class WeChatController : ControllerBase
         return Ok(response);
     }
     
-    [Authorize]
     [Route("work/corp/apps"), HttpGet]
     public async Task<IActionResult> GetWorkWeChatCorpApplicationsAsync([FromQuery] GetWorkWeChatCorpApplicationsRequest request)
     {

@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using Microsoft.Extensions.DependencyInjection;
 using PostBoy.Core.Data;
 using PostBoy.Core.Domain.WeChat;
@@ -27,6 +28,9 @@ public class WeChatFixture : IClassFixture<ApiTestFixture>, IDisposable
     {
         _factory = factory;
         _client = _factory.CreateClient();
+        
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFkbWluIiwibmFtZWlkIjoiMGZjMjE0NDktOGIzNi00NzlkLTgwYWUtYTE3YWZkOTQ4OTAwIiwibmJmIjoxNjcyMTQ5MDIzLCJleHAiOjE2NzIxNTI2MjMsImlhdCI6MTY3MjE0OTAyM30.m08klWNuTdqKULx5SF3UE4oS6o-z969utdBDBLjY4z8");
     }
 
     [Fact]
