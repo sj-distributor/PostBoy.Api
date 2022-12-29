@@ -53,6 +53,7 @@
         <EmbeddedResource Include="Dbup\Scripts_2022\Script0001_add_user_account.sql" />
         <None Remove="Dbup\Scripts_2022\Script0002_add_wechat_related_tables.sql" />
         <EmbeddedResource Include="Dbup\Scripts_2022\Script0002_add_wechat_related_tables.sql" />
+        <EmbeddedResource Include="Dbup\Scripts_2022\Script0003_add_api_key_table.sql" />
     </ItemGroup>
     
 </Project>
