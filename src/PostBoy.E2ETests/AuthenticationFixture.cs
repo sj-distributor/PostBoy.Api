@@ -60,7 +60,7 @@ public class AuthenticationFixture : IClassFixture<ApiTestFixture>, IDisposable
     [Fact]
     public async Task ShouldCachingUserWhenAuthenticated()
     {
-        var cache = _factory.Services.GetRequiredService<RedisCacheService>();
+        var redisCache = _factory.Services.GetRequiredService<RedisCacheService>();
         
         await InitialApiKeyUser();
         
@@ -68,7 +68,7 @@ public class AuthenticationFixture : IClassFixture<ApiTestFixture>, IDisposable
         
         var response = await _client.GetAsync("api/wechat/work/corps");
 
-        var cacheUser = await cache.GetAsync<UserAccountDto>("admin-api-key");
+        var cacheUser = await redisCache.GetAsync<UserAccountDto>("admin-api-key");
 
         cacheUser.UserName.ShouldBe("admin");
         

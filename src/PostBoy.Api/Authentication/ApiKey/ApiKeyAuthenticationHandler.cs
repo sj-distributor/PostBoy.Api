@@ -30,12 +30,9 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         if (string.IsNullOrWhiteSpace(apiKey))
             return AuthenticateResult.NoResult();
 
-        var userInfo = await _cacheManager.GetOrAddAsync(apiKey, async _ =>
-        {
-            var keyUser = await _accountDataProvider.GetUserAccountByApiKeyAsync(apiKey).ConfigureAwait(false);
-            
-            return keyUser;
-        }, CachingType.RedisCache, TimeSpan.FromHours(56), CancellationToken.None);
+        var userInfo = await _cacheManager.GetOrAddAsync(apiKey,
+            async _ => await _accountDataProvider.GetUserAccountByApiKeyAsync(apiKey).ConfigureAwait(false),
+            CachingType.RedisCache, TimeSpan.FromHours(24), CancellationToken.None);
         
         if (userInfo == null)
             return AuthenticateResult.NoResult();

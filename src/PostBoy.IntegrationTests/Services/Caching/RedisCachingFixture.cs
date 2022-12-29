@@ -5,8 +5,7 @@ using Xunit;
 
 namespace PostBoy.IntegrationTests.Services.Caching;
 
-[Collection("Sequential")]
-public class RedisCachingFixture : CachingFixtureBase
+public class RedisCachingFixture : GenericFixtureBase
 {
     [Fact]
     public async Task ShouldObjectTypeCacheWork()
