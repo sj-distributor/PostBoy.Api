@@ -17,7 +17,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         UrlEncoder encoder, ISystemClock clock, ICacheManager cacheManager, IAccountDataProvider accountDataProvider) : base(options, logger, encoder, clock)
     {
         _cacheManager = cacheManager;
-       _accountDataProvider = accountDataProvider;
+        _accountDataProvider = accountDataProvider;
     }
     
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -30,23 +30,16 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         if (string.IsNullOrWhiteSpace(apiKey))
             return AuthenticateResult.NoResult();
 
-        var userInfo = await _cacheManager.GetOrAddAsync( CachingKeys.WorkAuthenticationPostBoyMpNewsUserId, async _ =>
+        var userInfo = await _cacheManager.GetOrAddAsync(apiKey, async _ =>
         {
             var keyUser = await _accountDataProvider.GetUserAccountByApiKeyAsync(apiKey).ConfigureAwait(false);
             
-            if (keyUser.Id != Guid.Empty)
-            {
-                return keyUser;
-            }
-
-            return null;
+            return keyUser;
         }, CachingType.RedisCache, TimeSpan.FromHours(56), CancellationToken.None);
         
         if (userInfo == null)
-        {
             return AuthenticateResult.NoResult();
-        }
-        
+
         var identity = new ClaimsIdentity(new[]
         {
             new Claim(ClaimTypes.Name, userInfo.UserName),

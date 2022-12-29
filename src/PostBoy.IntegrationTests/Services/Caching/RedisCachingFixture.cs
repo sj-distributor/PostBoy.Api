@@ -6,22 +6,12 @@ using Xunit;
 namespace PostBoy.IntegrationTests.Services.Caching;
 
 [Collection("Sequential")]
-public class RedisCachingFixture : RedisCachingFixtureBase
+public class RedisCachingFixture : CachingFixtureBase
 {
-    
-    [Fact]
-    public void ShouldInstanceOfRedisCachingService()
-    {
-        Run<ICachingService>(cachingService =>
-        {
-            cachingService.GetType().ShouldBe(typeof(RedisCacheService));
-        });
-    }
-
     [Fact]
     public async Task ShouldObjectTypeCacheWork()
     {
-        await Run<ICachingService>(async cachingService =>
+        await Run<RedisCacheService>(async cachingService =>
         {
             var key = GenerateRandomKey();
             

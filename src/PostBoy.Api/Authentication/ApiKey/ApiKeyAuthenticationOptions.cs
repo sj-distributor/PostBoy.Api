@@ -4,5 +4,4 @@ namespace PostBoy.Api.Authentication.ApiKey;
 
 public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
 {
-    
 }

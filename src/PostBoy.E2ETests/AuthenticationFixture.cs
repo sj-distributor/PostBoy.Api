@@ -6,6 +6,7 @@ using PostBoy.Core.Domain.Account;
 using PostBoy.Core.Domain.Authentication;
 using PostBoy.Core.Services.Caching;
 using PostBoy.E2ETests.Mocks;
+using PostBoy.Messages.DTO.Account;
 using Shouldly;
 using Xunit;
 
@@ -16,7 +17,7 @@ public class AuthenticationFixture : IClassFixture<ApiTestFixture>, IDisposable
 {
     private readonly HttpClient _client;
     private readonly ApiTestFixture _factory;
-
+    
     public AuthenticationFixture(ApiTestFixture factory)
     {
         _factory = factory;
@@ -57,9 +58,9 @@ public class AuthenticationFixture : IClassFixture<ApiTestFixture>, IDisposable
     }
    
     [Fact]
-    public async Task ShouldBeGettingCacheWhenAuthentication()
+    public async Task ShouldCachingUserWhenAuthenticated()
     {
-        var cache = _factory.Services.GetRequiredService<ICachingService>();
+        var cache = _factory.Services.GetRequiredService<RedisCacheService>();
         
         await InitialApiKeyUser();
         
@@ -67,13 +68,13 @@ public class AuthenticationFixture : IClassFixture<ApiTestFixture>, IDisposable
         
         var response = await _client.GetAsync("api/wechat/work/corps");
 
-        var cacheUser = await cache.GetAsync<UserAccount>(CachingKeys.WorkAuthenticationPostBoyMpNewsUserId);
+        var cacheUser = await cache.GetAsync<UserAccountDto>("admin-api-key");
 
         cacheUser.UserName.ShouldBe("admin");
         
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
-
+    
     private async Task InitialApiKeyUser(string apikey = "admin-api-key")
     {
         var repo = _factory.Services.GetRequiredService<IRepository>();
@@ -85,7 +86,7 @@ public class AuthenticationFixture : IClassFixture<ApiTestFixture>, IDisposable
         {
             Id = userId,
             UserName = "admin",
-            Password = "password",
+            Password = "admin",
             IsActive = true
         });
         await repo.InsertAsync(new UserAccountApiKey
