@@ -3,17 +3,21 @@ using System.Text.Encodings.Web;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication;
 using PostBoy.Core.Services.Account;
+using PostBoy.Core.Services.Caching;
+using PostBoy.Messages.Enums.Caching;
 
 namespace PostBoy.Api.Authentication.ApiKey;
 
 public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions>
 {
+    private readonly ICacheManager _cacheManager;
     private readonly IAccountDataProvider _accountDataProvider;
     
     public ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options, ILoggerFactory logger,
-        UrlEncoder encoder, ISystemClock clock, IAccountDataProvider accountDataProvider) : base(options, logger, encoder, clock)
+        UrlEncoder encoder, ISystemClock clock, ICacheManager cacheManager, IAccountDataProvider accountDataProvider) : base(options, logger, encoder, clock)
     {
-        _accountDataProvider = accountDataProvider;
+        _cacheManager = cacheManager;
+       _accountDataProvider = accountDataProvider;
     }
     
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -25,16 +29,28 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         
         if (string.IsNullOrWhiteSpace(apiKey))
             return AuthenticateResult.NoResult();
-        
-        var keyUser = await _accountDataProvider.GetUserAccountByApiKeyAsync(apiKey).ConfigureAwait(false);
 
-        if (keyUser == null)
+        var userInfo = await _cacheManager.GetOrAddAsync( CachingKeys.WorkAuthenticationPostBoyMpNewsUserId, async _ =>
+        {
+            var keyUser = await _accountDataProvider.GetUserAccountByApiKeyAsync(apiKey).ConfigureAwait(false);
+            
+            if (keyUser.Id != Guid.Empty)
+            {
+                return keyUser;
+            }
+
+            return null;
+        }, CachingType.RedisCache, TimeSpan.FromHours(56), CancellationToken.None);
+        
+        if (userInfo == null)
+        {
             return AuthenticateResult.NoResult();
+        }
         
         var identity = new ClaimsIdentity(new[]
         {
-            new Claim(ClaimTypes.Name, keyUser.UserName),
-            new Claim(ClaimTypes.NameIdentifier, keyUser.Id.ToString()),
+            new Claim(ClaimTypes.Name, userInfo.UserName),
+            new Claim(ClaimTypes.NameIdentifier, userInfo.Id.ToString()),
         }, AuthenticationSchemeConstants.ApiKeyAuthenticationScheme);
 
         var claimsPrincipal = new ClaimsPrincipal(identity);
@@ -45,6 +61,5 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         Request.HttpContext.User = claimsPrincipal;
 
         return AuthenticateResult.Success(authenticationTicket);
-
     }
 }

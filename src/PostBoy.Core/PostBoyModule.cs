@@ -11,6 +11,7 @@ using PostBoy.Core.Data;
 using PostBoy.Core.Middlewares.FluentMessageValidator;
 using PostBoy.Core.Middlewares.UnifyResponse;
 using PostBoy.Core.Middlewares.UnitOfWork;
+using PostBoy.Core.Services.Caching;
 using PostBoy.Core.Settings;
 using Module = Autofac.Module;
 
@@ -42,6 +43,7 @@ public class PostBoyModule : Module
         RegisterDependency(builder);
         RegisterAutoMapper(builder);
         RegisterValidators(builder);
+        RegisterCaching(builder);
     }
     
     private void RegisterLogger(ContainerBuilder builder)
@@ -88,6 +90,15 @@ public class PostBoyModule : Module
         builder.RegisterType<EfRepository>().As<IRepository>().InstancePerLifetimeScope();
     }
     
+    private void RegisterCaching(ContainerBuilder builder)
+    {
+        builder.Register(cfx =>
+        {
+            var pool = cfx.Resolve<IRedisConnectionPool>();
+            return pool.GetConnection();
+        }).ExternallyOwned();
+    }
+
     private void RegisterDependency(ContainerBuilder builder)
     {
         foreach (var type in typeof(IDependency).Assembly.GetTypes()

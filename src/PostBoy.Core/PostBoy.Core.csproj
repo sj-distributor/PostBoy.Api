@@ -34,6 +34,7 @@
       <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
       <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.2" />
+      <PackageReference Include="RedLock.net" Version="2.3.2" />
       <PackageReference Include="Serilog" Version="2.12.0" />
       <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
       <PackageReference Include="Serilog.Enrichers.CorrelationId" Version="3.0.1" />
@@ -53,6 +54,7 @@
         <EmbeddedResource Include="Dbup\Scripts_2022\Script0001_add_user_account.sql" />
         <None Remove="Dbup\Scripts_2022\Script0002_add_wechat_related_tables.sql" />
         <EmbeddedResource Include="Dbup\Scripts_2022\Script0002_add_wechat_related_tables.sql" />
+        <EmbeddedResource Include="Dbup\Scripts_2022\Script0003_add_api_key_table.sql" />
     </ItemGroup>
     
 </Project>

@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PostBoy.Core.Data;
 using PostBoy.Core.Domain.Account;
 using PostBoy.Core.Domain.Authentication;
+using PostBoy.Core.Services.Caching;
 using PostBoy.E2ETests.Mocks;
 using Shouldly;
 using Xunit;
@@ -54,7 +55,25 @@ public class AuthenticationFixture : IClassFixture<ApiTestFixture>, IDisposable
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
-    
+   
+    [Fact]
+    public async Task ShouldBeGettingCacheWhenAuthentication()
+    {
+        var cache = _factory.Services.GetRequiredService<ICachingService>();
+        
+        await InitialApiKeyUser();
+        
+        _client.DefaultRequestHeaders.Add("X-API-KEY", "admin-api-key");
+        
+        var response = await _client.GetAsync("api/wechat/work/corps");
+
+        var cacheUser = await cache.GetAsync<UserAccount>(CachingKeys.WorkAuthenticationPostBoyMpNewsUserId);
+
+        cacheUser.UserName.ShouldBe("admin");
+        
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
     private async Task InitialApiKeyUser(string apikey = "admin-api-key")
     {
         var repo = _factory.Services.GetRequiredService<IRepository>();
@@ -66,7 +85,7 @@ public class AuthenticationFixture : IClassFixture<ApiTestFixture>, IDisposable
         {
             Id = userId,
             UserName = "admin",
-            Password = "admin",
+            Password = "password",
             IsActive = true
         });
         await repo.InsertAsync(new UserAccountApiKey
