@@ -4,7 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 using PostBoy.Core.Data;
 using PostBoy.Core.Domain.Account;
 using PostBoy.Core.Domain.Authentication;
+using PostBoy.Core.Services.Caching;
 using PostBoy.E2ETests.Mocks;
+using PostBoy.Messages.DTO.Account;
 using Shouldly;
 using Xunit;
 
@@ -15,7 +17,7 @@ public class AuthenticationFixture : IClassFixture<ApiTestFixture>, IDisposable
 {
     private readonly HttpClient _client;
     private readonly ApiTestFixture _factory;
-
+    
     public AuthenticationFixture(ApiTestFixture factory)
     {
         _factory = factory;
@@ -52,6 +54,24 @@ public class AuthenticationFixture : IClassFixture<ApiTestFixture>, IDisposable
         
         var response = await _client.GetAsync("api/wechat/work/corps");
 
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+   
+    [Fact]
+    public async Task ShouldCachingUserWhenAuthenticated()
+    {
+        var redisCache = _factory.Services.GetRequiredService<RedisCacheService>();
+        
+        await InitialApiKeyUser();
+        
+        _client.DefaultRequestHeaders.Add("X-API-KEY", "admin-api-key");
+        
+        var response = await _client.GetAsync("api/wechat/work/corps");
+
+        var cacheUser = await redisCache.GetAsync<UserAccountDto>("admin-api-key");
+
+        cacheUser.UserName.ShouldBe("admin");
+        
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
     

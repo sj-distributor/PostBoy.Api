@@ -24,6 +24,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PostBoy.Core\PostBoy.Core.csproj" />
+      <ProjectReference Include="..\PostBoy.E2ETests\PostBoy.E2ETests.csproj" />
       <ProjectReference Include="..\PostBoy.Messages\PostBoy.Messages.csproj" />
     </ItemGroup>
 
